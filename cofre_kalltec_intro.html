@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d12">
+<title>Cofre KallTec · Intro</title>
+<style>
+:root{color-scheme:dark;--mint:#43dac9;--ink:#080d12;--text:#e8f0f4}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--text);background:var(--ink)}
+.app{position:relative;min-height:100svh;overflow:hidden;background:radial-gradient(ellipse at 50% 44%,#11232a 0%,#0a1219 36%,#070c11 78%);display:flex;align-items:center;justify-content:center}
+.app:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#6a91a008 1px,transparent 1px),linear-gradient(90deg,#6a91a008 1px,transparent 1px);background-size:46px 46px;pointer-events:none}
+.scene{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;transform:translateY(-4px);width:100%}
+.logo-outer{position:relative;width:220px;height:220px;display:grid;place-items:center;perspective:700px}
+.halo{position:absolute;inset:1px;border-radius:50%;background:radial-gradient(circle,#36d4c329,transparent 69%);filter:blur(15px);animation:pulse 3s ease-in-out infinite}
+.safe{position:relative;width:126px;height:138px;border:2px solid #32636c;border-radius:23px;background:linear-gradient(145deg,#1d3541,#0c1923 75%);box-shadow:inset 2px 2px 5px #ffffff12,9px 13px 28px #0009,0 0 38px #39d5c513;transform-style:preserve-3d;animation:enter .75s cubic-bezier(.2,.7,.1,1) both}
+.safe:after{content:"";position:absolute;bottom:-7px;left:13px;width:16px;height:6px;background:#1a3b44;border-radius:0 0 3px 3px;box-shadow:79px 0 #1a3b44}
+.safe-door{position:absolute;inset:6px;border:1px solid #3a6973;border-radius:16px;background:linear-gradient(135deg,#233b47,#101d28);display:grid;place-items:center;transform-origin:0 50%;transform-style:preserve-3d;box-shadow:inset 0 0 0 3px #0a1720,0 1px 8px #0008;z-index:3}
+.safe-door:before{content:"";position:absolute;inset:7px;border:1px solid #325761;border-radius:11px}
+.inner-light{position:absolute;inset:12px;background:#2be4cf;border-radius:11px;box-shadow:0 0 28px #27dbc4a8;opacity:0}
+.wheel{position:relative;width:49px;height:49px;border:3px solid #47dfd0;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 16px #26d9c330,inset 0 0 8px #3cdacb35;z-index:2}
+.wheel:before,.wheel:after{content:"";position:absolute;background:#49e0d1;border-radius:3px}.wheel:before{width:3px;height:39px}.wheel:after{width:39px;height:3px}.wheel-core{width:14px;height:14px;border-radius:50%;border:3px solid #6df0e2;background:#153b41;z-index:2}
+.key-dot{position:absolute;right:7px;top:50%;width:5px;height:12px;transform:translateY(-50%);border-radius:5px;background:#48cfbe}
+.brand{font-size:32px;font-weight:750;letter-spacing:-1.4px;margin-top:3px}.brand span{color:#47dfd0}.tagline{font-size:11px;letter-spacing:3px;color:#6e8c9a;text-transform:uppercase;margin-top:2px}.status{font-size:12px;color:#7e9ba8;margin-top:25px;height:18px;letter-spacing:.2px}
+.progress{width:135px;height:2px;border-radius:5px;background:#20323d;overflow:hidden;margin-top:2px}.progress div{height:100%;width:0;background:#46e2d0;box-shadow:0 0 8px #46e2d0}
+.controls{position:absolute;bottom:22px;display:flex;gap:10px;align-items:center;justify-content:center;z-index:5}button{font:inherit;cursor:pointer}.skip{background:none;border:0;color:#718f9a;font-size:12px;padding:10px}.skip:hover{color:#b6d1d5}
+.safe-door.open{animation:door-open 1.05s cubic-bezier(.2,.7,.1,1) forwards}.wheel.spin{animation:spin 1.1s cubic-bezier(.25,.7,.25,1) forwards}.inner-light.shine{animation:shine 1.1s ease forwards}.progress div.go{animation:load 3.6s linear forwards}
+.enter{display:none;margin-top:18px;border:0;border-radius:30px;background:linear-gradient(100deg,#32cdbd,#51e2cf);color:#082b2b;font-weight:750;font-size:13px;padding:13px 28px;box-shadow:0 10px 30px #2fd8c42e;opacity:0;transform:translateY(8px);transition:opacity .35s ease,transform .35s ease}
+.enter.show{display:inline-block;opacity:1;transform:none}.enter:hover{filter:brightness(1.06)}
+@keyframes enter{from{opacity:0;transform:translateY(22px) scale(.82) rotate(-7deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}@keyframes spin{to{transform:rotate(540deg)}}@keyframes door-open{to{transform:rotateY(-112deg)}}@keyframes shine{0%{opacity:0}40%,100%{opacity:1}}@keyframes load{to{width:100%}}@keyframes pulse{50%{opacity:.5;transform:scale(1.17)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="scene" id="scene" aria-label="Animação de abertura do cofre">
+    <div class="logo-outer"><div class="halo"></div><div class="safe"><div class="inner-light" id="light"></div><div class="safe-door" id="door"><div class="wheel" id="wheel"><div class="wheel-core"></div></div><div class="key-dot"></div></div></div></div>
+    <div class="brand">Kall<span>Tec</span></div><div class="tagline">Private Vault</div>
+    <div class="status" id="status" aria-live="polite">Inicializando cofre seguro...</div><div class="progress"><div id="progress"></div></div>
+    <button class="enter" id="enter" type="button">Entrar no cofre</button>
+  </section>
+  <div class="controls"><button class="skip" id="skip" type="button">Pular intro</button></div>
+</main>
+<script>
+(() => {
+  const $=id=>document.getElementById(id);let tasks=[];
+  const later=(fn,delay)=>tasks.push(setTimeout(fn,delay));
+  const APP_URL=location.protocol==='file:'?'index.html':'/cofre';
+  function clearTasks(){tasks.forEach(clearTimeout);tasks=[]}
+  function go(){clearTasks();location.href=APP_URL}
+  function finish(){clearTasks();$('status').textContent='Cofre desbloqueado';$('enter').classList.add('show');$('skip').style.display='none';later(go,1400)}
+  function play(){clearTasks();$('enter').classList.remove('show');$('skip').style.display='';
+    for(const [id,cls] of [['door','open'],['wheel','spin'],['light','shine'],['progress','go']]){const el=$(id);el.style.animation='none';el.classList.remove(cls);void el.offsetWidth;el.style.animation=''}
+    $('status').textContent='Inicializando cofre seguro...';
+    later(()=>{$('wheel').classList.add('spin');$('progress').classList.add('go');$('status').textContent='Desbloqueando acesso...'},700);
+    later(()=>{$('door').classList.add('open');$('light').classList.add('shine')},1900);
+    later(finish,3700);
+  }
+  $('enter').addEventListener('click',go);$('skip').addEventListener('click',go);
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){$('status').textContent='Cofre desbloqueado';$('skip').style.display='none';later(go,300)}else play();
+})();
+</script>
+</body></html>

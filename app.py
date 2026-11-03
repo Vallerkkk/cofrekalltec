@@ -8,7 +8,12 @@ app = Flask(__name__, static_folder=None)
 
 
 @app.get("/")
-def index():
+def intro():
+    return send_from_directory(BASE_DIR, "cofre_kalltec_intro.html")
+
+
+@app.get("/cofre")
+def vault():
     return send_from_directory(BASE_DIR, "index.html")
 
 
