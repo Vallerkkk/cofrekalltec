@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Cofre KallTec</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%232dd4bf' d='M12 2l8 3v6c0 5-3.4 8.4-8 9-4.6-.6-8-4-8-9V5l8-3z'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   Cofre KallTec — estilos
+   ============================================================ */
+:root{
+  --bg:#080c11;
+  --surface:#0f151d;
+  --surface-2:#141c26;
+  --surface-3:#1a2431;
+  --border:#223041;
+  --border-strong:#31445a;
+  --text:#e9f0f8;
+  --muted:#8fa2b8;
+  --muted-2:#6b7f96;
+  --accent:#2dd4bf;
+  --accent-strong:#5eead4;
+  --accent-dim:rgba(45,212,191,.12);
+  --danger:#fb7185;
+  --danger-dim:rgba(251,113,133,.1);
+  --warn:#fbbf24;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+  --sans:"Segoe UI Variable Display","Segoe UI",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --radius:14px;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.75);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{height:100%}
+body{
+  margin:0;
+  min-height:100%;
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.5;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(45,212,191,.10), transparent 62%),
+    radial-gradient(760px 460px at 92% 4%, rgba(56,189,248,.07), transparent 60%),
+    var(--bg);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 0%, #000 30%, transparent 75%);
+  mask-image:radial-gradient(ellipse 90% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+h1,h2,h3,p{margin:0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+::selection{background:rgba(45,212,191,.28)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#26333f;border-radius:8px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- íconesSVG ---------- */
+svg{display:block;width:18px;height:18px;flex:none}
+
+/* ---------- botões ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text);
+  padding:9px 14px;
+  border-radius:10px;
+  font:inherit;font-size:14px;font-weight:600;
+  cursor:pointer;white-space:nowrap;
+  transition:background .16s ease,border-color .16s ease,transform .06s ease,filter .16s ease;
+}
+.btn:hover{background:var(--surface-3);border-color:var(--border-strong)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:17px;height:17px}
+.btn.primary{
+  background:linear-gradient(180deg,var(--accent-strong),var(--accent));
+  color:#04231f;border-color:transparent;
+  box-shadow:0 10px 24px -12px rgba(45,212,191,.7);
+}
+.btn.primary:hover{background:linear-gradient(180deg,#7ff2e3,var(--accent));filter:brightness(1.03)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{background:var(--surface-2);color:var(--text);border-color:var(--border)}
+.btn.danger{color:#fecdd3;background:var(--danger-dim);border-color:rgba(251,113,133,.35)}
+.btn.danger:hover{background:rgba(251,113,133,.18);border-color:rgba(251,113,133,.5)}
+.btn.small{padding:6px 10px;font-size:12.5px;border-radius:8px}
+.btn.small svg{width:14px;height:14px}
+.btn.full{width:100%;padding:12px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.icon-btn{
+  display:inline-grid;place-items:center;
+  width:32px;height:32px;padding:0;
+  border:1px solid transparent;border-radius:8px;
+  background:transparent;color:var(--muted);
+  cursor:pointer;transition:background .15s,color .15s,border-color .15s;
+}
+.icon-btn svg{width:17px;height:17px}
+.icon-btn:hover{background:var(--surface-3);color:var(--text);border-color:var(--border)}
+.icon-btn.danger:hover{background:var(--danger-dim);color:var(--danger);border-color:rgba(251,113,133,.3)}
+
+/* ---------- formulários ---------- */
+.field{display:grid;gap:6px}
+.field label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.field label .req{color:var(--accent);margin-left:2px}
+input,textarea,select{
+  width:100%;
+  background:var(--surface-3);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:10px;
+  padding:10px 12px;
+  font:inherit;font-size:14px;
+  outline:none;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+textarea{resize:vertical;min-height:78px}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238fa2b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:34px;cursor:pointer}
+input::placeholder,textarea::placeholder{color:var(--muted-2)}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,212,191,.14);background:var(--surface-2)}
+.input-wrap{position:relative}
+.input-wrap input{padding-right:44px}
+.input-wrap .icon-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%)}
+.hint{font-size:12.5px;color:var(--muted)}
+.error{color:var(--danger);font-size:13px;min-height:18px;margin:0}
+
+/* ---------- tela de bloqueio ---------- */
+.lock-screen{
+  min-height:100dvh;
+  display:grid;place-items:center;
+  padding:28px 20px;
+  position:relative;z-index:1;
+}
+.lock-card{
+  width:min(430px,100%);
+  padding:32px 30px 26px;
+  border-radius:22px;
+  border:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(21,29,40,.92),rgba(13,19,26,.96));
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter:blur(14px);
+}
+.brand-mark{
+  width:54px;height:54px;border-radius:16px;
+  display:grid;place-items:center;
+  font-weight:800;font-size:25px;color:#04211d;
+  background:linear-gradient(145deg,#7ff2e3,#2dd4bf 55%,#14b8a6);
+  box-shadow:0 14px 34px -14px rgba(45,212,191,.7),inset 0 1px 0 rgba(255,255,255,.45);
+  user-select:none;
+}
+.brand-mark.small{width:36px;height:36px;border-radius:11px;font-size:17px}
+.lock-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.lock-card h1{font-size:23px;letter-spacing:-.02em;font-weight:700}
+.lock-sub{font-size:13.5px;color:var(--muted);margin:0 0 22px;min-height:20px}
+.lock-form{display:grid;gap:14px}
+.lock-foot{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  margin-top:22px;padding-top:18px;border-top:1px solid var(--border);
+  font-size:11.5px;color:var(--muted-2);letter-spacing:.02em;
+}
+.lock-foot svg{width:13px;height:13px;color:var(--accent)}
+
+/* ---------- app ---------- */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:20px;
+  padding:11px 24px;
+  background:rgba(9,13,18,.78);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-name{display:flex;flex-direction:column;line-height:1.2}
+.brand-name strong{font-size:14.5px;letter-spacing:-.01em}
+.brand-name span{font-size:11.5px;color:var(--muted-2)}
+.tabs{
+  display:flex;gap:4px;padding:4px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+.tab{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 14px;border:0;border-radius:8px;
+  background:transparent;color:var(--muted);
+  font-size:13.5px;font-weight:600;cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.tab.active{background:var(--surface-3);color:var(--text);box-shadow:inset 0 0 0 1px var(--border)}
+.tab .count{
+  font-size:10.5px;font-weight:700;line-height:1;
+  padding:3px 6px;border-radius:999px;
+  background:rgba(255,255,255,.06);color:var(--muted);
+}
+.tab.active .count{background:var(--accent-dim);color:var(--accent-strong)}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+.sync-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 11px;border-radius:999px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-size:12px;font-weight:600;
+  cursor:pointer;white-space:nowrap;
+}
+.sync-pill:hover{background:var(--surface-2);color:var(--text)}
+.sync-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.sync-pill[data-state="synced"]{color:var(--accent-strong);border-color:rgba(45,212,191,.35);background:var(--accent-dim)}
+.sync-pill[data-state="synced"] .dot{background:var(--accent)}
+.sync-pill[data-state="syncing"] .dot{background:var(--warn);animation:sync-pulse 1s ease-in-out infinite}
+.sync-pill[data-state="error"]{color:#fecdd3;border-color:rgba(251,113,133,.35);background:var(--danger-dim)}
+.sync-pill[data-state="error"] .dot{background:var(--danger)}
+@keyframes sync-pulse{50%{opacity:.3}}
+.container{max-width:1080px;margin:0 auto;padding:26px 24px 90px}
+
+/* ---------- barra de ferramentas ---------- */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.search{
+  position:relative;flex:1;min-width:220px;
+}
+.search svg{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;color:var(--muted-2);pointer-events:none;
+}
+.search input{padding-left:36px;background:var(--surface-2)}
+.toolbar select{width:auto;min-width:180px;max-width:260px}
+.toolbar .btn.primary{margin-left:auto}
+
+/* ---------- lista ---------- */
+.list{display:grid;gap:10px}
+.item{
+  display:flex;gap:14px;
+  padding:16px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:linear-gradient(180deg,var(--surface-2),rgba(15,21,29,.92));
+  transition:border-color .18s ease,background .18s ease;
+  min-width:0;
+}
+.item:hover{border-color:var(--border-strong)}
+.avatar{
+  width:40px;height:40px;flex:none;border-radius:11px;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#1d2b3a,#16212c);
+  border:1px solid var(--border);
+  color:var(--accent-strong);
+  font-weight:700;font-size:16px;font-family:var(--mono);
+  text-transform:uppercase;user-select:none;
+}
+.avatar svg{width:19px;height:19px}
+.item-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.item-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px}
+.item-title-wrap{min-width:0;display:flex;flex-direction:column;gap:2px}
+.item-title{font-size:15.5px;font-weight:650;letter-spacing:-.01em;overflow-wrap:anywhere}
+.title-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-link{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:12px;color:var(--muted);max-width:100%;
+  overflow-wrap:anywhere;
+}
+.item-link svg{width:12px;height:12px;flex:none}
+.item-link:hover{color:var(--accent);text-decoration:none}
+.item-link.muted{color:var(--muted-2)}
+.item-actions{display:flex;gap:2px;margin-left:auto;flex:none}
+.kv{
+  display:grid;
+  grid-template-columns:80px minmax(0,1fr) auto;
+  align-items:center;gap:10px;
+  padding:5px 0;
+  min-height:34px;
+}
+.kv + .kv{border-top:1px solid rgba(255,255,255,.04)}
+.kv-label{
+  font-size:10.5px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted-2);
+}
+.kv-value{font-size:13.5px;overflow-wrap:anywhere;line-height:1.45}
+.kv-value.mono{font-family:var(--mono);font-size:12.8px;letter-spacing:.02em}
+.kv-actions{display:flex;gap:0;flex:none}
+.kv-actions .icon-btn{width:30px;height:30px}
+.kv-actions .icon-btn svg{width:15px;height:15px}
+.item-notes{
+  margin-top:9px;
+  padding:8px 10px;
+  border-radius:8px;
+  background:rgba(255,255,255,.025);
+  font-size:12.5px;color:var(--muted);
+  white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.chip{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:999px;
+  font-size:10.5px;font-weight:700;letter-spacing:.02em;
+  background:var(--accent-dim);
+  border:1px solid rgba(45,212,191,.2);
+  color:var(--accent-strong);
+  white-space:nowrap;
+}
+.chip.env{background:rgba(148,163,184,.1);border-color:var(--border);color:var(--muted)}
+
+/* grupos de API */
+.group-block{display:grid;gap:10px;margin-top:4px}
+.group-head{display:flex;align-items:center;gap:10px;margin:14px 0 2px}
+.group-head:first-child{margin-top:0}
+.group-head h2{
+  font-size:11.5px;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);
+}
+.group-head .group-count{
+  font-family:var(--mono);font-size:10.5px;
+  color:var(--muted-2);
+  background:var(--surface-2);border:1px solid var(--border);
+  padding:1px 6px;border-radius:999px;
+}
+.group-head .line{flex:1;height:1px;background:var(--border)}
+.group-grid{display:grid;gap:10px}
+
+/* skills */
+.cards-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));align-items:start}
+.skill-card{flex-direction:column;gap:11px}
+.skill-top{display:flex;align-items:flex-start;gap:11px}
+.skill-icon{
+  width:36px;height:36px;flex:none;border-radius:10px;
+  display:grid;place-items:center;
+  background:var(--accent-dim);
+  border:1px solid rgba(45,212,191,.22);
+  color:var(--accent-strong);
+}
+.skill-icon svg{width:18px;height:18px}
+.skill-title-wrap{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding-top:1px}
+.skill-name{
+  font-family:var(--mono);
+  font-size:12.8px;font-weight:600;
+  letter-spacing:-.01em;
+  overflow-wrap:anywhere;
+  color:var(--text);
+  width:100%;
+}
+.skill-purpose{font-size:13.5px;color:#c6d3e2;overflow-wrap:anywhere}
+.skill-when{font-size:12.8px;color:var(--muted);overflow-wrap:anywhere}
+.skill-when strong{color:var(--text);font-weight:600}
+.skill-foot{display:flex;justify-content:flex-end;margin-top:auto;padding-top:2px}
+.skill-foot .btn{color:var(--muted)}
+.skill-foot .btn:hover{color:var(--accent-strong);background:var(--accent-dim);border-color:transparent}
+
+/* ---------- estado vazio ---------- */
+.empty{
+  grid-column:1/-1;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
+  padding:58px 24px;
+  border:1px dashed var(--border-strong);
+  border-radius:var(--radius);
+  background:rgba(255,255,255,.012);
+}
+.empty-icon{
+  width:54px;height:54px;border-radius:15px;
+  display:grid;place-items:center;
+  background:var(--accent-dim);color:var(--accent);
+  margin-bottom:6px;
+}
+.empty-icon svg{width:25px;height:25px}
+.empty h3{font-size:16px;font-weight:650}
+.empty p{font-size:13.5px;color:var(--muted);max-width:400px;margin-bottom:10px}
+
+/* ---------- diálogos ---------- */
+dialog{
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:linear-gradient(180deg,var(--surface-2),var(--surface));
+  color:var(--text);
+  padding:0;
+  width:min(560px,calc(100vw - 28px));
+  box-shadow:0 50px 120px -40px #000;
+  max-height:calc(100dvh - 40px);
+}
+dialog[open]{display:flex;flex-direction:column}
+dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
+.dialog-form{display:flex;flex-direction:column;flex:1;min-height:0}
+.dialog-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:17px 20px;border-bottom:1px solid var(--border);flex:none;
+}
+.dialog-head h2{font-size:16.5px;font-weight:650;letter-spacing:-.01em}
+.dialog-body{
+  padding:20px;display:grid;gap:14px;
+  overflow:auto;flex:1;min-height:0;
+}
+.dialog-foot{
+  display:flex;justify-content:flex-end;gap:8px;
+  padding:15px 20px;border-top:1px solid var(--border);flex:none;
+}
+.confirm-message{font-size:14px;color:var(--muted);line-height:1.55}
+.confirm-message strong{color:var(--text)}
+.backup-grid{display:grid;gap:12px}
+.backup-card{
+  padding:15px;border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.018);
+  display:flex;gap:13px;align-items:flex-start;
+}
+.backup-card .backup-icon{
+  width:38px;height:38px;flex:none;border-radius:10px;
+  display:grid;place-items:center;
+  background:var(--accent-dim);color:var(--accent-strong);
+}
+.backup-card .backup-icon svg{width:18px;height:18px}
+.backup-card h3{font-size:14px;font-weight:650;margin-bottom:2px}
+.backup-card p{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+.backup-note{display:flex;gap:8px;font-size:12px;color:var(--muted-2);line-height:1.5}
+.backup-note svg{width:15px;height:15px;color:var(--muted);margin-top:1px}
+
+/* ---------- toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:26px;z-index:100;
+  transform:translate(-50%,16px);
+  padding:10px 16px;border-radius:10px;
+  background:#0d2925;
+  border:1px solid rgba(45,212,191,.35);
+  color:#ccfbf1;font-size:13.5px;font-weight:500;
+  box-shadow:var(--shadow);
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;
+  max-width:calc(100vw - 32px);text-align:center;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.err{background:#2a1215;border-color:rgba(251,113,133,.4);color:#ffe4e6}
+
+/* ---------- responsivo ---------- */
+@media (max-width:820px){
+  .topbar{flex-wrap:wrap;gap:9px;padding:10px 14px}
+  .brand-name span{display:none}
+  .brand-name strong{font-size:13.5px}
+  .tabs{order:3;width:100%}
+  .tab{flex:1;justify-content:center;padding:7px 8px;font-size:13px}
+  .top-actions .label{display:none}
+  .top-actions .btn{padding:8px;width:36px;height:34px}
+  .container{padding:18px 14px 70px}
+  .toolbar .btn.primary{margin-left:0;width:100%}
+  .search{min-width:100%}
+  .toolbar select{flex:1;max-width:none}
+  .avatar{display:none}
+  .kv{grid-template-columns:64px minmax(0,1fr) auto;gap:8px}
+  .cards-grid{grid-template-columns:1fr}
+  .lock-card{padding:26px 22px 22px}
+  .dialog-body{padding:16px}
+  .dialog-foot{padding:13px 16px}
+  .item{padding:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= TELA DE BLOQUEIO ================= -->
+<section id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-head">
+      <div class="brand-mark" aria-hidden="true">K</div>
+      <h1>Cofre KallTec</h1>
+    </div>
+    <p class="lock-sub" id="lockSubtitle">Carregando…</p>
+
+    <form id="loginForm" class="lock-form" hidden>
+      <div class="field">
+        <label for="loginUser">Login</label>
+        <input id="loginUser" type="text" autocomplete="username" value="kalltec" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Senha</label>
+        <div class="input-wrap">
+          <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Digite a senha de acesso">
+          <button type="button" class="icon-btn" data-toggle-pass="loginPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
+        </div>
+      </div>
+      <p class="error" id="loginError" role="alert"></p>
+      <button type="submit" class="btn primary full" id="loginBtn">Entrar</button>
+      <button type="button" class="btn danger small full" id="resetVaultBtn" hidden>Apagar cofre deste navegador</button>
+    </form>
+
+    <p class="lock-foot">
+      <span data-icon="shield"></span>
+      Acesso único KallTec · AES-256 · sincroniza com o Supabase
+    </p>
+  </div>
+</section>
+
+<!-- ================= APLICATIVO ================= -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark small" aria-hidden="true">K</div>
+      <div class="brand-name">
+        <strong>Cofre KallTec</strong>
+        <span>senhas, APIs e skills</span>
+      </div>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Seções do cofre">
+      <button class="tab active" role="tab" data-tab="accounts" aria-selected="true">Contas <span class="count">0</span></button>
+      <button class="tab" role="tab" data-tab="apis" aria-selected="false">APIs <span class="count">0</span></button>
+      <button class="tab" role="tab" data-tab="skills" aria-selected="false">Skills IA <span class="count">0</span></button>
+    </nav>
+
+    <div class="top-actions">
+      <button class="sync-pill" id="syncPill" type="button" data-state="local" title="Estado da sincronização com o banco">
+        <span class="dot"></span><span id="syncLabel">Só neste navegador</span>
+      </button>
+      <button class="btn ghost" id="backupBtn" type="button" title="Backup do cofre">
+        <span data-icon="download"></span><span class="label">Backup</span>
+      </button>
+      <button class="btn ghost" id="lockBtn" type="button" title="Trancar o cofre">
+        <span data-icon="lock"></span><span class="label">Trancar</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="toolbar">
+      <div class="search">
+        <span data-icon="search"></span>
+        <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Buscar">
+      </div>
+      <select id="filterSelect" aria-label="Filtrar" hidden></select>
+      <button class="btn primary" id="addBtn" type="button">
+        <span data-icon="plus"></span><span id="addLabel">Nova conta</span>
+      </button>
+    </div>
+    <section id="list" class="list" aria-live="polite"></section>
+  </main>
+</div>
+
+<!-- ================= DIÁLOGO DE ITEM ================= -->
+<dialog id="entryDialog" aria-labelledby="entryDialogTitle">
+  <form id="entryForm" class="dialog-form" autocomplete="off">
+    <div class="dialog-head">
+      <h2 id="entryDialogTitle">Nova conta</h2>
+      <button type="button" class="icon-btn" data-close-dialog aria-label="Fechar"></button>
+    </div>
+    <div class="dialog-body" id="entryFields"></div>
+    <div class="dialog-foot">
+      <button type="button" class="btn" data-close-dialog>Cancelar</button>
+      <button type="submit" class="btn primary" id="entrySave">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ================= CONFIRMAÇÃO ================= -->
+<dialog id="confirmDialog" aria-labelledby="confirmTitle">
+  <div class="dialog-head">
+    <h2 id="confirmTitle">Confirmar</h2>
+    <button type="button" class="icon-btn" data-close-dialog aria-label="Fechar"></button>
+  </div>
+  <div class="dialog-body">
+    <p class="confirm-message" id="confirmMessage"></p>
+  </div>
+  <div class="dialog-foot">
+    <button type="button" class="btn" id="confirmCancel">Cancelar</button>
+    <button type="button" class="btn danger" id="confirmOk">Excluir</button>
+  </div>
+</dialog>
+
+<!-- ================= BACKUP ================= -->
+<dialog id="backupDialog" aria-labelledby="backupTitle">
+  <div class="dialog-head">
+    <h2 id="backupTitle">Backup do cofre</h2>
+    <button type="button" class="icon-btn" data-close-dialog aria-label="Fechar"></button>
+  </div>
+  <div class="dialog-body">
+    <div class="backup-grid">
+      <div class="backup-card">
+        <div class="backup-icon"><span data-icon="download"></span></div>
+        <div>
+          <h3>Baixar backup</h3>
+          <p>Um arquivo criptografado com a senha de acesso do cofre. Guarde no Drive, pendrive ou e-mail.</p>
+          <button type="button" class="btn small primary" id="exportBtn">Exportar arquivo</button>
+        </div>
+      </div>
+      <div class="backup-card">
+        <div class="backup-icon"><span data-icon="upload"></span></div>
+        <div>
+          <h3>Restaurar backup</h3>
+          <p>Substitui os dados deste navegador pelo arquivo escolhido. Útil ao trocar de computador.</p>
+          <button type="button" class="btn small" id="importBtn">Escolher arquivo</button>
+        </div>
+      </div>
+    </div>
+    <p class="backup-note">
+      <span data-icon="alert"></span>
+      O backup só abre com a senha de acesso correta. Limpar os dados do navegador apaga o cofre — por isso exporte com frequência.
+    </p>
+  </div>
+  <div class="dialog-foot">
+    <button type="button" class="btn" data-close-dialog>Fechar</button>
+  </div>
+</dialog>
+
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px;text-align:center">Ative o JavaScript para usar o cofre.</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     Configuração
+     ============================================================ */
+  const STORAGE_KEY = 'kalltec_vault_v1';
+  // Acesso fixo da empresa. O Supabase valida a senha; ela também deriva a chave do cofre.
+  const ACCESS_USER = 'kalltec';
+  const AUTH_EMAIL = 'kalltec@kalltec.com';
+  // Apenas a chave publishable fica no site. A secret key NUNCA deve entrar aqui.
+  const SUPABASE_URL = 'https://aqpdsamhoxkmyjhlswol.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_EyZOc3FKBdMPveId0E7Btg_BaooiRp8';
+  const PBKDF2_ITER = 310000;
+  const AUTO_LOCK_MS = 10 * 60 * 1000;
+  const DEFAULT_PROJECT_TYPES = ['Site institucional', 'Loja online', 'App / sistema', 'Automação', 'Bot', 'Integração', 'Outro'];
+  const DEFAULT_SKILL_CATEGORIES = ['Sites & Deploy', 'Design', 'Código', 'APIs', 'Office', 'Arquitetura', 'Qoder', 'Mídia'];
+
+  /* ============================================================
+     Ícones
+     ============================================================ */
+  const I = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+  const icons = {
+    user: I('<path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/>'),
+    key: I('<circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.8 12.2 21 2"/><path d="m17 6 3 3"/>'),
+    eye: I('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'),
+    eyeOff: I('<path d="M3 3l18 18"/><path d="M10.6 5.2A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a18.6 18.6 0 0 1-3 3.9"/><path d="M6.6 6.6C3.6 8.5 2 12 2 12s3.5 7 10 7a10.6 10.6 0 0 0 4.4-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>'),
+    copy: I('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
+    edit: I('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
+    trash: I('<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/>'),
+    plus: I('<path d="M12 5v14M5 12h14"/>'),
+    search: I('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>'),
+    lock: I('<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'),
+    unlock: I('<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/>'),
+    download: I('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>'),
+    upload: I('<path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/>'),
+    close: I('<path d="M6 6l12 12M18 6 6 18"/>'),
+    shield: I('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6Z"/><path d="m9 12 2 2 4-4"/>'),
+    alert: I('<path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5"/><path d="M12 18h.01"/>'),
+    sparkles: I('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9Z"/>'),
+    link: I('<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/>'),
+    check: I('<path d="m5 12 5 5L20 7"/>')
+  };
+
+  /* ============================================================
+     Estado e utilidades
+     ============================================================ */
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+
+  const state = {
+    key: null,
+    envelope: null,
+    data: null,
+    tab: 'accounts',
+    search: '',
+    filter: ''
+  };
+  const session = { access: null, refresh: null, userId: null, expires: 0 };
+  let syncTimer = null;
+  let syncErrorShown = false;
+  const revealed = new Set();
+  let entryType = 'accounts';
+  let entryId = null;
+  let confirmCallback = null;
+  let toastTimer = null;
+  let activityTimer = null;
+
+  const uid = () => (window.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+
+  const nowIso = () => new Date().toISOString();
+
+  const b64 = (buf) => {
+    const bytes = new Uint8Array(buf);
+    let bin = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(bin);
+  };
+  const unb64 = (str) => {
+    const bin = atob(str);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  };
+
+  const el = (tag, props, ...children) => {
+    const node = document.createElement(tag);
+    if (props) {
+      Object.keys(props).forEach((k) => {
+        const v = props[k];
+        if (v === null || v === undefined) return;
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else if (k.startsWith('on')) node.addEventListener(k.slice(2).toLowerCase(), v);
+        else node.setAttribute(k, v);
+      });
+    }
+    children.forEach((c) => {
+      if (c === null || c === undefined) return;
+      node.append(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return node;
+  };
+
+  const iconBtn = (name, label, onClick, extra) => {
+    const b = el('button', { class: 'icon-btn' + (extra ? ' ' + extra : ''), type: 'button', 'aria-label': label, title: label });
+    b.innerHTML = icons[name];
+    b.addEventListener('click', onClick);
+    return b;
+  };
+
+  const mask = () => '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022';
+  const safeUrl = (raw) => {
+    if (!raw) return '';
+    const s = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+    try {
+      const u = new URL(s);
+      return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '';
+    } catch (_) {
+      return '';
+    }
+  };
+  const prettyUrl = (href) => {
+    try { return new URL(href).hostname.replace(/^www\./, ''); } catch (_) { return href; }
+  };
+  const initials = (name) => (name || '?').trim().charAt(0) || '?';
+
+  function toast(message, kind) {
+    const t = $('#toast');
+    t.textContent = message;
+    t.className = kind === 'err' ? 'show err' : 'show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 2400);
+  }
+
+  async function copyText(text, label) {
+    if (!text) return;
+    const done = () => toast(label || 'Copiado');
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.append(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch (_) { toast('Não foi possível copiar', 'err'); }
+      ta.remove();
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(text); done(); }
+      catch (_) { fallback(); }
+    } else {
+      fallback();
+    }
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    try { return new Date(iso).toLocaleDateString('pt-BR'); } catch (_) { return ''; }
+  }
+
+  /* ============================================================
+     Criptografia
+     ============================================================ */
+  async function deriveKey(password, salt, iterations) {
+    const base = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: salt, iterations: iterations, hash: 'SHA-256' },
+      base,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async function writeVault() {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      state.key,
+      enc.encode(JSON.stringify(state.data))
+    );
+    state.envelope.iv = b64(iv);
+    state.envelope.data = b64(ct);
+    state.envelope.updated = nowIso();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.envelope));
+    queueSync();
+  }
+
+  function normalize(data) {
+    const arr = (x) => Array.isArray(x) ? x : [];
+    return { version: 1, accounts: arr(data.accounts), apis: arr(data.apis), skills: arr(data.skills) };
+  }
+
+  /* ============================================================
+     Supabase — login e sincronização do cofre criptografado
+     ============================================================ */
+  const SYNC_TEXT = {
+    local: 'Só neste navegador',
+    syncing: 'Sincronizando…',
+    synced: 'Sincronizado',
+    error: 'Sem sincronizar'
+  };
+
+  function setSync(name, title) {
+    const pill = $('#syncPill');
+    if (!pill) return;
+    pill.dataset.state = name;
+    pill.title = title || 'Estado da sincronização com o banco';
+    $('#syncLabel').textContent = SYNC_TEXT[name] || SYNC_TEXT.local;
+  }
+
+  async function authRequest(path, body) {
+    const res = await fetch(SUPABASE_URL + path, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error_description || data.msg || data.message || data.error || ('erro ' + res.status));
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  function keepSession(d) {
+    session.access = d.access_token;
+    session.refresh = d.refresh_token;
+    session.userId = d.user && d.user.id;
+    session.expires = Date.now() + Math.max(0, (Number(d.expires_in) || 3600) - 90) * 1000;
+  }
+
+  async function signIn(password) {
+    const d = await authRequest('/auth/v1/token?grant_type=password', { email: AUTH_EMAIL, password: password });
+    keepSession(d);
+  }
+
+  async function ensureSession() {
+    if (session.access && Date.now() < session.expires) return true;
+    if (!session.refresh) return false;
+    try {
+      keepSession(await authRequest('/auth/v1/token?grant_type=refresh_token', { refresh_token: session.refresh }));
+      return true;
+    } catch (_) {
+      session.access = null;
+      return false;
+    }
+  }
+
+  async function restFetch(path, options) {
+    if (!(await ensureSession())) throw new Error('sem-sessao');
+    const headers = Object.assign({
+      apikey: SUPABASE_KEY,
+      Authorization: 'Bearer ' + session.access
+    }, options && options.headers);
+    const res = await fetch(SUPABASE_URL + path, Object.assign({}, options, { headers: headers }));
+    if (!res.ok) {
+      const err = new Error('rest-' + res.status);
+      err.status = res.status;
+      throw err;
+    }
+    return res;
+  }
+
+  async function fetchRemoteVault() {
+    const res = await restFetch('/rest/v1/vault?select=envelope&limit=1');
+    const rows = await res.json();
+    return rows && rows[0] ? rows[0].envelope : null;
+  }
+
+  async function pushRemoteVault(envelope) {
+    await restFetch('/rest/v1/vault', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ user_id: session.userId, envelope: envelope, updated_at: nowIso() })
+    });
+  }
+
+  function queueSync() {
+    if (!session.access) { setSync('local'); return; }
+    clearTimeout(syncTimer);
+    setSync('syncing');
+    syncTimer = setTimeout(syncNow, 700);
+  }
+
+  async function syncNow() {
+    if (!state.envelope) return;
+    if (!session.access) { setSync('local'); return; }
+    clearTimeout(syncTimer);
+    setSync('syncing');
+    try {
+      await pushRemoteVault(state.envelope);
+      setSync('synced', 'Cofre salvo no banco. Clique para sincronizar novamente.');
+    } catch (ex) {
+      if (ex.status === 404) {
+        setSync('error', 'Tabela "vault" não existe no Supabase. Rode o arquivo schema.sql no SQL Editor.');
+        if (!syncErrorShown) {
+          syncErrorShown = true;
+          toast('Banco ainda não configurado: rode o schema.sql no Supabase.', 'err');
+        }
+      } else {
+        setSync('error', 'Não foi possível sincronizar. Clique para tentar novamente.');
+      }
+    }
+  }
+
+  function readLocalEnvelope() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const env = JSON.parse(raw);
+      if (!env || env.v !== 1 || !env.salt || !env.iv || !env.data) return null;
+      return env;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function envelopeTime(env) {
+    const t = env && env.updated ? Date.parse(env.updated) : 0;
+    return isNaN(t) ? 0 : t;
+  }
+
+  /* ============================================================
+     Dados iniciais (skills do Qoder)
+     ============================================================ */
+  function seedSkills() {
+    const base = [
+      ['sites:sites-building', 'Sites & Deploy', 'Monta ou altera um site completo no Qoder Sites: páginas, layout e conteúdo.', 'Para criar landing page, site institucional ou dashboard do zero.'],
+      ['sites:sites-hosting', 'Sites & Deploy', 'Publica o site, gera o link público e recupera sites fora do ar.', 'Quando o site estiver pronto e precisar ir para o ar.'],
+      ['sites:sites-management', 'Sites & Deploy', 'Gerencia site publicado: visitantes, acessos, banco, arquivos e funções.', 'Para compartilhar, restringir acesso ou cuidar do backend depois de publicado.'],
+      ['sites:sites-build-agent-app', 'Sites & Deploy', 'Adiciona chat com IA, agente e voz em tempo real a um Qoder Site.', 'Quando o site precisa de um assistente inteligente.'],
+      ['impeccable', 'Design', 'Audita e melhora o visual de telas: layout, cores, tipografia e acessibilidade.', 'Antes de entregar uma página, ou quando o resultado parece amador.'],
+      ['andrej-karpathy-skills:karpathy-guidelines', 'Código', 'Guia de código enxuto: mudanças cirúrgicas, sem exagerar em abstrações.', 'Antes de pedir implementação, revisão ou refatoração.'],
+      ['chrome-devtools-mcp:chrome-devtools', 'Código', 'Automatiza e depura páginas no Chrome: cliques, rede, console e performance.', 'Para testar o site no navegador e investigar erros.'],
+      ['chrome-devtools-mcp:a11y-debugging', 'Código', 'Audita acessibilidade: HTML semântico, teclado, contraste e leitores de tela.', 'Antes de entregar um site para público amplo.'],
+      ['chrome-devtools-mcp:debug-optimize-lcp', 'Código', 'Diagnostica e melhora o carregamento da página (Core Web Vitals).', 'Quando o site estiver lento para abrir.'],
+      ['chrome-devtools-mcp:cookie-debugging', 'Código', 'Investiga cookies, sessão e erros de login (401/403).', 'Quando o usuário perde a sessão ou não consegue entrar.'],
+      ['chrome-devtools-mcp:memory-leak-debugging', 'Código', 'Encontra vazamentos de memória em aplicações web.', 'Quando a página fica pesada depois de muito uso.'],
+      ['postman:postman-routing', 'APIs', 'Encaminha qualquer pedido de API para a ferramenta correta do Postman.', 'Sempre que a tarefa envolver API, coleção ou endpoint.'],
+      ['postman:agent-ready-apis', 'APIs', 'Avalia se uma API está pronta para agentes de IA, com 48 checagens.', 'Antes de liberar uma API para automações e agentes.'],
+      ['postman:postman-knowledge', 'APIs', 'Conceitos do Postman e uso correto das ferramentas MCP de API.', 'Para criar coleções, mocks, testes e documentação de API.'],
+      ['Presentations:pptx', 'Office', 'Cria e edita apresentações PowerPoint (.pptx) com layout profissional.', 'Para propostas, relatórios e treinamentos em slides.'],
+      ['office-excel:excel', 'Office', 'Cria e edita planilhas XLSX/CSV, com fórmulas e formatação.', 'Para controles, orçamentos e relatórios em planilha.'],
+      ['architecture-visualization:explore', 'Arquitetura', 'Mapeia e documenta a arquitetura atual de um sistema ou projeto.', 'Quando precisar entender como algo é montado.'],
+      ['architecture-visualization:flow-visualizer', 'Arquitetura', 'Desenha fluxos de dados, chamadas e eventos de um sistema.', 'Para explicar como uma informação anda de ponta a ponta.'],
+      ['architecture-visualization:risk-quality-reviewer', 'Arquitetura', 'Revisa riscos, dívida técnica e qualidade da arquitetura.', 'Antes de modernizar ou auditar um sistema.'],
+      ['qoder-canvas:canvas', 'Qoder', 'Gera visuais interativos na conversa ou como artefato salvo.', 'Para explicar um mecanismo ou comparar opções visualmente.'],
+      ['qoder-helper:skills', 'Qoder', 'Tira dúvidas sobre recursos e configurações do Qoder.', 'Quando não souber onde fica uma função ou ajuste no Qoder.'],
+      ['qoder-find-extensions', 'Qoder', 'Busca, compara e instala skills, MCPs e plugins.', 'Quando faltar uma capacidade ou ferramenta no Qoder.'],
+      ['qoder-qmind:qmind', 'Qoder', 'Consulta e organiza a base de conhecimento QMind.', 'Para achar respostas em documentos e notas da empresa.'],
+      ['skill-creator', 'Qoder', 'Cria ou atualiza skills personalizadas do Qoder.', 'Quando quiser transformar um processo repetitivo em comando.'],
+      ['collaboration-cli:desktop', 'Qoder', 'Opera projetos, tarefas, discussões e arquivos na colaboração Qoder.', 'Para organizar trabalho em equipe pelo Qoder.'],
+      ['imagegen', 'Mídia', 'Gera ou edita imagens: fotos, ilustrações, texturas e mockups.', 'Quando precisar de imagem nova para site ou material.']
+    ];
+    return base.map((s) => ({
+      id: uid(),
+      name: s[0],
+      category: s[1],
+      purpose: s[2],
+      whenToUse: s[3],
+      updatedAt: nowIso()
+    }));
+  }
+
+  /* ============================================================
+     Fluxo do cofre
+     ============================================================ */
+  function cryptoReady() {
+    return !!(window.crypto && crypto.subtle && crypto.getRandomValues);
+  }
+
+  function setupLockScreen() {
+    if (!cryptoReady()) {
+      $('#lockSubtitle').textContent = 'Este navegador não suporta a criptografia necessária. Abra no Chrome, Edge ou Firefox atualizado.';
+      return false;
+    }
+    try { localStorage.getItem(STORAGE_KEY); }
+    catch (_) {
+      $('#lockSubtitle').textContent = 'O navegador bloqueou o armazenamento local. Desative o modo privado e recarregue.';
+      return false;
+    }
+    showLogin();
+    return true;
+  }
+
+  function showLogin(message) {
+    $('#lockSubtitle').textContent = message || 'Acesso exclusivo da KallTec. Entre para abrir o cofre.';
+    $('#loginForm').hidden = false;
+    $('#loginError').textContent = '';
+    $('#loginUser').value = ACCESS_USER;
+    $('#loginPassword').value = '';
+    $('#resetVaultBtn').hidden = true;
+    setTimeout(() => $('#loginPassword').focus(), 60);
+  }
+
+  async function createVault(password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey(password, salt, PBKDF2_ITER);
+    const data = {
+      version: 1,
+      accounts: [],
+      apis: [],
+      skills: seedSkills(),
+      createdAt: nowIso()
+    };
+    const envelope = { v: 1, iter: PBKDF2_ITER, salt: b64(salt), iv: '', data: '' };
+    state.key = key;
+    state.envelope = envelope;
+    state.data = data;
+    await writeVault();
+    enterApp();
+    toast('Cofre criado com sucesso.');
+  }
+
+  async function unlockEnvelope(envelope, password) {
+    const key = await deriveKey(password, unb64(envelope.salt), Number(envelope.iter) || PBKDF2_ITER);
+    const pt = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: unb64(envelope.iv) },
+      key,
+      unb64(envelope.data)
+    );
+    const data = JSON.parse(dec.decode(pt));
+    state.key = key;
+    state.data = normalize(data);
+  }
+
+  async function openVault(password) {
+    let remote = null;
+    let online = true;
+    let remoteError = null;
+    try {
+      remote = await fetchRemoteVault();
+    } catch (ex) {
+      online = false;
+      remoteError = ex;
+    }
+
+    const local = readLocalEnvelope();
+    let chosen = null;
+    if (remote && local) chosen = envelopeTime(local) > envelopeTime(remote) ? local : remote;
+    else chosen = remote || local;
+
+    if (!chosen) {
+      await createVault(password);
+      return;
+    }
+
+    let usedFallback = false;
+    try {
+      await unlockEnvelope(chosen, password);
+    } catch (ex) {
+      if (chosen === remote && local) {
+        await unlockEnvelope(local, password);
+        usedFallback = true;
+      } else {
+        throw ex;
+      }
+    }
+
+    state.envelope = chosen;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.envelope)); } catch (_) {}
+    enterApp();
+
+    if (!online) {
+      if (remoteError && remoteError.status === 404) {
+        setSync('error', 'Tabela "vault" não existe no Supabase. Rode o arquivo schema.sql no SQL Editor.');
+        toast('Banco ainda não configurado: rode o schema.sql no Supabase.', 'err');
+        syncErrorShown = true;
+      } else {
+        setSync('local', 'Sem conexão com o banco. Os dados estão salvos neste navegador.');
+        toast('Banco indisponível. Usando o cofre deste navegador.');
+      }
+    } else if (usedFallback) {
+      setSync('error', 'O cofre do banco não abre com esta senha. Enviando o cofre deste navegador.');
+      await syncNow();
+    } else if (!remote || (chosen === local && envelopeTime(local) > envelopeTime(remote))) {
+      await syncNow();
+    } else {
+      setSync('synced');
+    }
+  }
+
+  function enterApp() {
+    $('#lockScreen').hidden = true;
+    $('#app').hidden = false;
+    state.tab = 'accounts';
+    state.search = '';
+    state.filter = '';
+    revealed.clear();
+    $('#searchInput').value = '';
+    render();
+    bumpActivity();
+  }
+
+  function lockVault(message) {
+    clearTimeout(activityTimer);
+    clearTimeout(syncTimer);
+    state.key = null;
+    state.envelope = null;
+    state.data = null;
+    session.access = null;
+    session.refresh = null;
+    session.userId = null;
+    session.expires = 0;
+    revealed.clear();
+    document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+    $('#app').hidden = true;
+    $('#lockScreen').hidden = false;
+    setSync('local');
+    showLogin(message);
+  }
+
+  /* ============================================================
+     Auto-lock por inatividade
+     ============================================================ */
+  function bumpActivity() {
+    if (!state.key) return;
+    clearTimeout(activityTimer);
+    activityTimer = setTimeout(() => {
+      lockVault('Cofre trancado por inatividade. Entre novamente.');
+      toast('Cofre trancado por inatividade.');
+    }, AUTO_LOCK_MS);
+  }
+
+  /* ============================================================
+     Renderização
+     ============================================================ */
+  function render() {
+    if (!state.data) return;
+    renderChrome();
+    renderList();
+  }
+
+  function renderChrome() {
+    document.querySelectorAll('.tab').forEach((btn) => {
+      const active = btn.dataset.tab === state.tab;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      const arr = state.data[btn.dataset.tab] || [];
+      btn.querySelector('.count').textContent = arr.length;
+    });
+
+    $('#addLabel').textContent = state.tab === 'accounts' ? 'Nova conta' : state.tab === 'apis' ? 'Nova API' : 'Nova skill';
+
+    const placeholders = {
+      accounts: 'Buscar serviço, usuário ou observação',
+      apis: 'Buscar API, tipo de projeto ou URL',
+      skills: 'Buscar skill, categoria ou descrição'
+    };
+    $('#searchInput').placeholder = placeholders[state.tab];
+
+    const sel = $('#filterSelect');
+    if (state.tab === 'accounts') {
+      sel.hidden = true;
+      return;
+    }
+    sel.hidden = false;
+    const values = state.tab === 'apis' ? uniqueProjectTypes() : uniqueSkillCategories();
+    const label = state.tab === 'apis' ? 'Todos os tipos de projeto' : 'Todas as categorias';
+    const previous = state.filter;
+    sel.innerHTML = '';
+    sel.append(new Option(label, ''));
+    values.forEach((v) => sel.append(new Option(v, v)));
+    if (values.indexOf(previous) === -1) state.filter = '';
+    sel.value = state.filter;
+  }
+
+  function uniqueProjectTypes() {
+    const set = new Set();
+    state.data.apis.forEach((a) => { const t = (a.projectType || '').trim(); if (t) set.add(t); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }
+
+  function uniqueSkillCategories() {
+    const set = new Set();
+    state.data.skills.forEach((s) => { const c = (s.category || '').trim(); if (c) set.add(c); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }
+
+  function matches(obj, q, keys) {
+    if (!q) return true;
+    return keys.some((k) => String(obj[k] || '').toLowerCase().includes(q));
+  }
+
+  function renderList() {
+    const list = $('#list');
+    list.className = 'list' + (state.tab === 'skills' ? ' cards-grid' : '');
+    list.innerHTML = '';
+    const q = state.search.trim().toLowerCase();
+
+    if (state.tab === 'accounts') renderAccounts(list, q);
+    else if (state.tab === 'apis') renderApis(list, q);
+    else renderSkills(list, q);
+  }
+
+  function emptyBlock(title, text, actionLabel, onAction) {
+    const wrap = el('div', { class: 'empty' });
+    const ic = el('div', { class: 'empty-icon' });
+    ic.innerHTML = icons.shield;
+    wrap.append(ic, el('h3', { text: title }), el('p', { text: text }));
+    if (actionLabel) {
+      const b = el('button', { class: 'btn primary', type: 'button', text: actionLabel });
+      b.addEventListener('click', onAction);
+      wrap.append(b);
+    }
+    return wrap;
+  }
+
+  function clearFilters() {
+    state.search = '';
+    state.filter = '';
+    $('#searchInput').value = '';
+    $('#filterSelect').value = '';
+    renderList();
+  }
+
+  function emptyFor(list, q) {
+    if (q || state.filter) {
+      list.append(emptyBlock('Nada encontrado', 'Tente outro termo ou limpe a busca e o filtro.', 'Limpar busca', clearFilters));
+    } else if (state.tab === 'accounts') {
+      list.append(emptyBlock('Nenhuma conta ainda', 'Guarde aqui o login e a senha dos seus programas, e-mails e serviços.', 'Adicionar primeira conta', () => openEntryDialog('accounts')));
+    } else if (state.tab === 'apis') {
+      list.append(emptyBlock('Nenhuma API guardada', 'Cadastre chaves e endpoints separados por tipo de projeto: site, app, automação e mais.', 'Adicionar primeira API', () => openEntryDialog('apis')));
+    } else {
+      list.append(emptyBlock('Nenhuma skill ainda', 'Anote o nome da skill de IA e para que ela serve, para consultar na hora de usar o Qoder.', 'Adicionar primeira skill', () => openEntryDialog('skills')));
+    }
+  }
+
+  /* ---------- contas ---------- */
+  function renderAccounts(list, q) {
+    const items = state.data.accounts
+      .filter((a) => matches(a, q, ['name', 'username', 'url', 'notes']))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+
+    if (!items.length) { emptyFor(list, q); return; }
+    items.forEach((a) => list.append(accountCard(a)));
+  }
+
+  function accountCard(a) {
+    const card = el('article', { class: 'item' });
+    card.append(el('div', { class: 'avatar', 'aria-hidden': 'true', text: initials(a.name) }));
+
+    const body = el('div', { class: 'item-body' });
+    const head = el('div', { class: 'item-head' });
+    const titleWrap = el('div', { class: 'item-title-wrap' });
+    titleWrap.append(el('h3', { class: 'item-title', text: a.name || 'Sem nome' }));
+
+    const url = safeUrl(a.url);
+    if (url) {
+      const link = el('a', { class: 'item-link', href: url, target: '_blank', rel: 'noopener noreferrer', title: url });
+      const ic = el('span');
+      ic.innerHTML = icons.link;
+      link.append(ic, document.createTextNode(prettyUrl(url)));
+      titleWrap.append(link);
+    } else if (a.url) {
+      titleWrap.append(el('span', { class: 'item-link muted', text: a.url }));
+    }
+
+    head.append(titleWrap, actionsEl('accounts', a.id));
+    body.append(head);
+
+    body.append(plainRow('Usuário', a.username, 'Copiar usuário', true));
+    body.append(secretRow('Senha', a.password, a.id, 'Senha copiada'));
+
+    if (a.notes) body.append(el('p', { class: 'item-notes', text: a.notes }));
+    card.append(body);
+    return card;
+  }
+
+  /* ---------- APIs ---------- */
+  function renderApis(list, q) {
+    const grouped = new Map();
+    state.data.apis.forEach((a) => {
+      if (!matches(a, q, ['name', 'projectType', 'key', 'baseUrl', 'environment', 'notes'])) return;
+      const type = (a.projectType || '').trim() || 'Sem tipo';
+      if (state.filter && type !== state.filter) return;
+      if (!grouped.has(type)) grouped.set(type, []);
+      grouped.get(type).push(a);
+    });
+
+    if (!grouped.size) { emptyFor(list, q); return; }
+
+    const types = Array.from(grouped.keys()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    types.forEach((type) => {
+      const block = el('div', { class: 'group-block' });
+      const head = el('div', { class: 'group-head' });
+      head.append(
+        el('h2', { text: type }),
+        el('span', { class: 'group-count', text: String(grouped.get(type).length) }),
+        el('span', { class: 'line' })
+      );
+      const grid = el('div', { class: 'group-grid' });
+      grouped.get(type)
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'))
+        .forEach((a) => grid.append(apiCard(a)));
+      block.append(head, grid);
+      list.append(block);
+    });
+  }
+
+  function apiCard(a) {
+    const card = el('article', { class: 'item' });
+    const avatar = el('div', { class: 'avatar', 'aria-hidden': 'true' });
+    avatar.innerHTML = icons.key;
+    card.append(avatar);
+
+    const body = el('div', { class: 'item-body' });
+    const head = el('div', { class: 'item-head' });
+    const titleWrap = el('div', { class: 'item-title-wrap' });
+    const titleLine = el('div', { class: 'title-line' });
+    titleLine.append(el('h3', { class: 'item-title', text: a.name || 'Sem nome' }));
+    if (a.environment) titleLine.append(el('span', { class: 'chip env', text: a.environment }));
+    titleWrap.append(titleLine);
+    head.append(titleWrap, actionsEl('apis', a.id));
+    body.append(head);
+
+    body.append(plainRow('Projeto', a.projectType || 'Sem tipo', null, false));
+    if (a.key) body.append(secretRow('Chave', a.key, a.id, 'Chave copiada'));
+    if (a.baseUrl) body.append(plainRow('URL base', a.baseUrl, 'Copiar URL', true));
+    if (a.notes) body.append(el('p', { class: 'item-notes', text: a.notes }));
+    card.append(body);
+    return card;
+  }
+
+  /* ---------- skills ---------- */
+  function renderSkills(list, q) {
+    const items = state.data.skills
+      .filter((s) => matches(s, q, ['name', 'category', 'purpose', 'whenToUse']))
+      .filter((s) => !state.filter || (s.category || '') === state.filter)
+      .sort((a, b) => {
+        const c = (a.category || '').localeCompare(b.category || '', 'pt-BR');
+        return c || (a.name || '').localeCompare(b.name || '', 'pt-BR');
+      });
+
+    if (!items.length) { emptyFor(list, q); return; }
+    items.forEach((s) => list.append(skillCard(s)));
+  }
+
+  function skillCard(s) {
+    const card = el('article', { class: 'item skill-card' });
+
+    const top = el('div', { class: 'skill-top' });
+    const icon = el('div', { class: 'skill-icon', 'aria-hidden': 'true' });
+    icon.innerHTML = icons.sparkles;
+    const titleWrap = el('div', { class: 'skill-title-wrap' });
+    titleWrap.append(el('h3', { class: 'skill-name', text: s.name || 'Sem nome' }));
+    if (s.category) titleWrap.append(el('span', { class: 'chip', text: s.category }));
+    top.append(icon, titleWrap, actionsEl('skills', s.id));
+    card.append(top);
+
+    if (s.purpose) card.append(el('p', { class: 'skill-purpose', text: s.purpose }));
+    if (s.whenToUse) {
+      const when = el('p', { class: 'skill-when' });
+      when.append(el('strong', { text: 'Quando usar: ' }), document.createTextNode(s.whenToUse));
+      card.append(when);
+    }
+
+    const foot = el('div', { class: 'skill-foot' });
+    const copyBtn = el('button', { class: 'btn small ghost', type: 'button' });
+    const ico = el('span');
+    ico.innerHTML = icons.copy;
+    copyBtn.append(ico, document.createTextNode('Copiar nome'));
+    copyBtn.addEventListener('click', () => copyText(s.name, 'Nome da skill copiado'));
+    foot.append(copyBtn);
+    card.append(foot);
+
+    return card;
+  }
+
+  /* ---------- linhas de dados ---------- */
+  function plainRow(label, value, copyLabel, mono) {
+    const row = el('div', { class: 'kv' });
+    row.append(el('span', { class: 'kv-label', text: label }));
+    row.append(el('span', { class: 'kv-value' + (mono ? ' mono' : ''), text: value || '—' }));
+    const actions = el('div', { class: 'kv-actions' });
+    if (copyLabel && value) {
+      actions.append(iconBtn('copy', 'Copiar ' + label, () => copyText(value, copyLabel)));
+    }
+    row.append(actions);
+    return row;
+  }
+
+  function secretRow(label, secret, id, copyLabel) {
+    const row = el('div', { class: 'kv' });
+    row.append(el('span', { class: 'kv-label', text: label }));
+
+    const isRevealed = revealed.has(id);
+    const value = el('span', { class: 'kv-value mono', text: secret ? (isRevealed ? secret : mask()) : '—' });
+    const actions = el('div', { class: 'kv-actions' });
+
+    if (secret) {
+      const eye = iconBtn(isRevealed ? 'eyeOff' : 'eye', 'Mostrar ou ocultar', () => {
+        const show = !revealed.has(id);
+        if (show) revealed.add(id); else revealed.delete(id);
+        value.textContent = show ? secret : mask();
+        eye.innerHTML = show ? icons.eyeOff : icons.eye;
+      });
+      actions.append(eye);
+      actions.append(iconBtn('copy', 'Copiar ' + label.toLowerCase(), () => copyText(secret, copyLabel)));
+    }
+    row.append(value, actions);
+    return row;
+  }
+
+  function actionsEl(type, id) {
+    const wrap = el('div', { class: 'item-actions' });
+    wrap.append(
+      iconBtn('edit', 'Editar', () => openEntryDialog(type, id)),
+      iconBtn('trash', 'Excluir', () => askDelete(type, id), 'danger')
+    );
+    return wrap;
+  }
+
+  /* ============================================================
+     Formulário de item
+     ============================================================ */
+  function fieldTemplate(type) {
+    if (type === 'accounts') {
+      return '' +
+        '<div class="field"><label for="e-name">Nome do serviço ou programa <span class="req">*</span></label><input id="e-name" required maxlength="120" placeholder="Ex.: Gmail, Canva, TOTVS"></div>' +
+        '<div class="field"><label for="e-username">Usuário ou e-mail <span class="req">*</span></label><input id="e-username" required maxlength="200" spellcheck="false" placeholder="voce@kalltec.com.br"></div>' +
+        '<div class="field"><label for="e-secret">Senha <span class="req">*</span></label><div class="input-wrap"><input id="e-secret" type="password" required maxlength="400" autocomplete="new-password" spellcheck="false"><button type="button" class="icon-btn" data-toggle-pass="e-secret" aria-label="Mostrar senha" title="Mostrar senha">' + icons.eye + '</button></div></div>' +
+        '<div class="field"><label for="e-url">Site (opcional)</label><input id="e-url" maxlength="300" spellcheck="false" placeholder="https://..."></div>' +
+        '<div class="field"><label for="e-notes">Observações (opcional)</label><textarea id="e-notes" rows="3" maxlength="1200" placeholder="Plano, contato, data de renovação..."></textarea></div>';
+    }
+    if (type === 'apis') {
+      return '' +
+        '<div class="field"><label for="e-name">Nome da API <span class="req">*</span></label><input id="e-name" required maxlength="120" placeholder="Ex.: OpenAI, Mercado Pago, Supabase"></div>' +
+        '<div class="field"><label for="e-project">Tipo de projeto <span class="req">*</span></label><input id="e-project" required maxlength="80" list="e-project-list" placeholder="Ex.: Site institucional"><datalist id="e-project-list"></datalist></div>' +
+        '<div class="field"><label for="e-secret">Chave / token <span class="req">*</span></label><div class="input-wrap"><input id="e-secret" type="password" required maxlength="2000" autocomplete="new-password" spellcheck="false"><button type="button" class="icon-btn" data-toggle-pass="e-secret" aria-label="Mostrar chave" title="Mostrar chave">' + icons.eye + '</button></div></div>' +
+        '<div class="field"><label for="e-url">URL base (opcional)</label><input id="e-url" maxlength="500" spellcheck="false" placeholder="https://api.exemplo.com"></div>' +
+        '<div class="field"><label for="e-env">Ambiente</label><select id="e-env"><option value="">Não informado</option><option>Produção</option><option>Homologação</option><option>Desenvolvimento</option></select></div>' +
+        '<div class="field"><label for="e-notes">Observações (opcional)</label><textarea id="e-notes" rows="3" maxlength="1200" placeholder="Limites, escopos, onde a chave é usada..."></textarea></div>';
+    }
+    return '' +
+      '<div class="field"><label for="e-name">Nome da skill <span class="req">*</span></label><input id="e-name" required maxlength="160" spellcheck="false" placeholder="Ex.: impeccable"></div>' +
+      '<div class="field"><label for="e-category">Categoria</label><input id="e-category" maxlength="60" list="e-category-list" placeholder="Ex.: Design"><datalist id="e-category-list"></datalist></div>' +
+      '<div class="field"><label for="e-purpose">Para que serve <span class="req">*</span></label><textarea id="e-purpose" required rows="3" maxlength="1200" placeholder="O que essa skill faz, em uma ou duas frases."></textarea></div>' +
+      '<div class="field"><label for="e-when">Quando usar (opcional)</label><textarea id="e-when" rows="2" maxlength="800" placeholder="Ex.: antes de entregar uma página ao cliente."></textarea></div>';
+  }
+
+  function fillDatalists(type) {
+    const list = $('#e-project-list');
+    if (type === 'apis' && list) {
+      const values = new Set(DEFAULT_PROJECT_TYPES);
+      state.data.apis.forEach((a) => { if (a.projectType) values.add(a.projectType); });
+      Array.from(values).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach((v) => list.append(new Option(v)));
+    }
+    const cat = $('#e-category-list');
+    if (type === 'skills' && cat) {
+      const values = new Set(DEFAULT_SKILL_CATEGORIES);
+      state.data.skills.forEach((s) => { if (s.category) values.add(s.category); });
+      Array.from(values).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach((v) => cat.append(new Option(v)));
+    }
+  }
+
+  function openEntryDialog(type, id) {
+    entryType = type;
+    entryId = id || null;
+    const item = id ? findItem(type, id) : null;
+
+    $('#entryFields').innerHTML = fieldTemplate(type);
+    $('#entryDialogTitle').textContent = (item ? 'Editar ' : 'Nova ') + (type === 'accounts' ? 'conta' : type === 'apis' ? 'API' : 'skill');
+    $('#entrySave').textContent = item ? 'Salvar alterações' : 'Adicionar';
+
+    if (type === 'accounts' && item) {
+      $('#e-name').value = item.name || '';
+      $('#e-username').value = item.username || '';
+      $('#e-secret').value = item.password || '';
+      $('#e-url').value = item.url || '';
+      $('#e-notes').value = item.notes || '';
+    } else if (type === 'apis' && item) {
+      $('#e-name').value = item.name || '';
+      $('#e-project').value = item.projectType || '';
+      $('#e-secret').value = item.key || '';
+      $('#e-url').value = item.baseUrl || '';
+      $('#e-env').value = item.environment || '';
+      $('#e-notes').value = item.notes || '';
+    } else if (type === 'skills' && item) {
+      $('#e-name').value = item.name || '';
+      $('#e-category').value = item.category || '';
+      $('#e-purpose').value = item.purpose || '';
+      $('#e-when').value = item.whenToUse || '';
+    }
+
+    fillDatalists(type);
+    $('#entryDialog').showModal();
+    setTimeout(() => {
+      const first = $('#entryFields input');
+      if (first) first.focus();
+    }, 40);
+  }
+
+  async function saveEntry() {
+    const type = entryType;
+    const id = entryId || uid();
+    const trim = (sel) => ($(sel) ? $(sel).value.trim() : '');
+    const raw = (sel) => ($(sel) ? $(sel).value : '');
+
+    let collection;
+    let item;
+
+    if (type === 'accounts') {
+      const name = trim('#e-name');
+      const username = trim('#e-username');
+      const password = raw('#e-secret');
+      if (!name || !username || !password) { toast('Preencha nome, usuário e senha.', 'err'); return; }
+      collection = state.data.accounts;
+      item = { id: id, name: name, username: username, password: password, url: trim('#e-url'), notes: trim('#e-notes'), updatedAt: nowIso() };
+    } else if (type === 'apis') {
+      const name = trim('#e-name');
+      const projectType = trim('#e-project');
+      const key = raw('#e-secret');
+      if (!name || !projectType || !key) { toast('Preencha nome, tipo de projeto e chave.', 'err'); return; }
+      collection = state.data.apis;
+      item = { id: id, name: name, projectType: projectType, key: key, baseUrl: trim('#e-url'), environment: trim('#e-env'), notes: trim('#e-notes'), updatedAt: nowIso() };
+    } else {
+      const name = trim('#e-name');
+      const purpose = trim('#e-purpose');
+      if (!name || !purpose) { toast('Preencha o nome e para que a skill serve.', 'err'); return; }
+      collection = state.data.skills;
+      item = { id: id, name: name, category: trim('#e-category'), purpose: purpose, whenToUse: trim('#e-when'), updatedAt: nowIso() };
+    }
+
+    const wasEdit = !!entryId;
+    const index = collection.findIndex((x) => x.id === id);
+    if (index >= 0) collection[index] = item; else collection.push(item);
+
+    try {
+      await writeVault();
+      revealed.delete(id);
+      $('#entryDialog').close();
+      render();
+      toast(wasEdit ? 'Alterações salvas.' : 'Item adicionado.');
+    } catch (err) {
+      toast('Não foi possível salvar. Verifique o espaço do navegador.', 'err');
+    }
+  }
+
+  function findItem(type, id) {
+    if (!state.data) return null;
+    const arr = state.data[type] || [];
+    return arr.find((x) => x.id === id) || null;
+  }
+
+  function askDelete(type, id) {
+    const item = findItem(type, id);
+    if (!item) return;
+    const label = type === 'accounts' ? 'conta' : type === 'apis' ? 'API' : 'skill';
+    askConfirm(
+      'Excluir ' + label + '?',
+      '"' + (item.name || 'Sem nome') + '" será removido do cofre. Essa ação não pode ser desfeita.',
+      'Excluir',
+      async function () {
+        state.data[type] = state.data[type].filter((x) => x.id !== id);
+        revealed.delete(id);
+        try {
+          await writeVault();
+          render();
+          toast('Item excluído.');
+        } catch (err) {
+          toast('Não foi possível excluir.', 'err');
+        }
+      }
+    );
+  }
+
+  /* ============================================================
+     Confirmação
+     ============================================================ */
+  function askConfirm(title, message, confirmLabel, onConfirm) {
+    $('#confirmTitle').textContent = title;
+    $('#confirmMessage').textContent = message;
+    $('#confirmOk').textContent = confirmLabel || 'Confirmar';
+    confirmCallback = onConfirm;
+    $('#confirmDialog').showModal();
+  }
+
+  /* ============================================================
+     Backup
+     ============================================================ */
+  function exportBackup() {
+    let raw;
+    try { raw = localStorage.getItem(STORAGE_KEY); }
+    catch (_) { raw = null; }
+    if (!raw) { toast('Nada para exportar ainda.', 'err'); return; }
+    const blob = new Blob([raw], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cofre-kalltec-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Backup exportado.');
+  }
+
+  async function importBackup(file) {
+    const text = await file.text();
+    let envelope;
+    try {
+      envelope = JSON.parse(text);
+    } catch (_) {
+      toast('Arquivo inválido: não é um backup do cofre.', 'err');
+      return;
+    }
+    if (!envelope || envelope.v !== 1 || !envelope.salt || !envelope.iv || !envelope.data || !envelope.iter) {
+      toast('Arquivo inválido: não é um backup do cofre.', 'err');
+      return;
+    }
+    $('#backupDialog').close();
+    askConfirm(
+      'Restaurar backup?',
+      'Os dados atuais deste navegador serão substituídos. Você precisará da senha de acesso usada quando esse backup foi gerado.',
+      'Restaurar',
+      function () {
+        try {
+          envelope.updated = nowIso();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
+          lockVault('Backup restaurado. Entre com seu login e senha.');
+          toast('Backup restaurado.');
+        } catch (_) {
+          toast('Não foi possível restaurar o backup.', 'err');
+        }
+      }
+    );
+  }
+
+  /* ============================================================
+     Eventos
+     ============================================================ */
+  function bindEvents() {
+    // ícones estáticos
+    document.querySelectorAll('[data-icon]').forEach((node) => {
+      const name = node.getAttribute('data-icon');
+      if (icons[name]) node.innerHTML = icons[name];
+    });
+    document.querySelectorAll('button[data-close-dialog][aria-label="Fechar"]').forEach((btn) => {
+      btn.innerHTML = icons.close;
+    });
+    document.querySelectorAll('[data-toggle-pass]').forEach((btn) => {
+      btn.innerHTML = icons.eye;
+    });
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-toggle-pass]');
+      if (!btn) return;
+      const input = document.getElementById(btn.getAttribute('data-toggle-pass'));
+      if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? icons.eyeOff : icons.eye;
+      btn.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+    });
+
+    // entrar (acesso único, senha validada pelo Supabase)
+    $('#loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = $('#loginUser').value.trim().toLowerCase();
+      const pass = $('#loginPassword').value;
+      const err = $('#loginError');
+      err.textContent = '';
+      $('#resetVaultBtn').hidden = true;
+      if (user !== ACCESS_USER) {
+        err.textContent = 'Login incorreto.';
+        $('#loginUser').select();
+        return;
+      }
+      if (!pass) {
+        err.textContent = 'Digite a senha.';
+        return;
+      }
+      const btn = $('#loginBtn');
+      btn.disabled = true;
+      btn.textContent = 'Entrando…';
+      try {
+        try {
+          await signIn(pass);
+        } catch (ex) {
+          if (ex.status === 400 || ex.status === 401) {
+            err.textContent = 'Senha incorreta.';
+            $('#loginPassword').select();
+            return;
+          }
+          // sem internet ou banco fora do ar: abre o cofre salvo neste navegador
+        }
+        await openVault(pass);
+      } catch (ex) {
+        err.textContent = 'O cofre foi criado com outra senha.';
+        $('#resetVaultBtn').hidden = false;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+      }
+    });
+
+    // sincronização manual
+    $('#syncPill').addEventListener('click', async () => {
+      if (!state.key) return;
+      if (!session.access) {
+        toast('Entre novamente para sincronizar.', 'err');
+        return;
+      }
+      await syncNow();
+      if ($('#syncPill').dataset.state === 'synced') toast('Cofre sincronizado.');
+      else toast('Não foi possível sincronizar.', 'err');
+    });
+
+    // apagar cofre antigo (só aparece se o acesso fixo não abrir o cofre)
+    $('#resetVaultBtn').addEventListener('click', () => {
+      askConfirm(
+        'Apagar cofre deste navegador?',
+        'Todos os logins, APIs e skills salvos neste navegador serão apagados. Essa ação não pode ser desfeita. Exporte um backup antes, se precisar.',
+        'Apagar cofre',
+        () => {
+          try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+          showLogin('Cofre apagado. Entre novamente para criar um cofre novo.');
+          toast('Cofre apagado.');
+        }
+      );
+    });
+
+    // abas
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (state.tab === btn.dataset.tab) return;
+        state.tab = btn.dataset.tab;
+        state.search = '';
+        state.filter = '';
+        revealed.clear();
+        $('#searchInput').value = '';
+        render();
+        $('#searchInput').focus();
+      });
+    });
+
+    // busca
+    $('#searchInput').addEventListener('input', (e) => {
+      state.search = e.target.value;
+      revealed.clear();
+      renderList();
+    });
+
+    // filtro
+    $('#filterSelect').addEventListener('change', (e) => {
+      state.filter = e.target.value;
+      revealed.clear();
+      renderList();
+    });
+
+    // adicionar
+    $('#addBtn').addEventListener('click', () => openEntryDialog(state.tab));
+
+    // salvar item
+    $('#entryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveEntry();
+    });
+
+    // fechar diálogos
+    document.querySelectorAll('[data-close-dialog]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const dialog = btn.closest('dialog');
+        if (dialog) dialog.close();
+      });
+    });
+
+    // confirmação
+    $('#confirmCancel').addEventListener('click', () => {
+      confirmCallback = null;
+      $('#confirmDialog').close();
+    });
+    $('#confirmOk').addEventListener('click', async () => {
+      const cb = confirmCallback;
+      confirmCallback = null;
+      $('#confirmDialog').close();
+      if (cb) await cb();
+    });
+    $('#confirmDialog').addEventListener('close', () => { confirmCallback = null; });
+
+    // backup
+    $('#backupBtn').addEventListener('click', () => $('#backupDialog').showModal());
+    $('#exportBtn').addEventListener('click', exportBackup);
+    $('#importBtn').addEventListener('click', () => $('#importFile').click());
+    $('#importFile').addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      try {
+        await importBackup(file);
+      } catch (_) {
+        toast('Não foi possível ler o arquivo.', 'err');
+      }
+    });
+
+    // trancar
+    $('#lockBtn').addEventListener('click', () => {
+      lockVault('Cofre trancado.');
+      toast('Cofre trancado.');
+    });
+
+    // atalho de busca
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && state.key) {
+        e.preventDefault();
+        $('#searchInput').focus();
+        $('#searchInput').select();
+      }
+    });
+
+    // auto-lock
+    ['pointerdown', 'keydown', 'touchstart', 'input'].forEach((evt) => {
+      document.addEventListener(evt, bumpActivity, { passive: true });
+    });
+  }
+
+  /* ============================================================
+     Início
+     ============================================================ */
+  bindEvents();
+  setupLockScreen();
+})();
+</script>
+</body>
+</html>

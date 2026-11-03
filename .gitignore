@@ -1,0 +1,5 @@
+# backups exportados do cofre (contêm o cofre criptografado)
+cofre-kalltec-*.json
+.env
+.DS_Store
+Thumbs.db
