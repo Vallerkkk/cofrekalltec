@@ -313,23 +313,31 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
 }
 .chip.env{background:rgba(148,163,184,.1);border-color:var(--border);color:var(--muted)}
 
-/* grupos de API */
-.group-block{display:grid;gap:10px;margin-top:4px}
-.group-head{display:flex;align-items:center;gap:10px;margin:14px 0 2px}
-.group-head:first-child{margin-top:0}
-.group-head h2{
-  font-size:11.5px;font-weight:800;
-  letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);
+/* pastas de API */
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.folder-card{
+  display:flex;align-items:center;gap:12px;
+  padding:15px;border-radius:12px;
+  border:1px solid var(--border);background:var(--surface);
+  cursor:pointer;text-align:left;
+  transition:background .15s,border-color .15s,transform .15s;
 }
-.group-head .group-count{
-  font-family:var(--mono);font-size:10.5px;
-  color:var(--muted-2);
-  background:var(--surface-2);border:1px solid var(--border);
-  padding:1px 6px;border-radius:999px;
+.folder-card:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.folder-card:active{transform:translateY(1px)}
+.folder-icon{
+  width:38px;height:38px;flex:none;border-radius:10px;
+  display:grid;place-items:center;
+  background:rgba(56,189,248,.09);
+  border:1px solid rgba(56,189,248,.22);
+  color:#7dd3fc;
 }
-.group-head .line{flex:1;height:1px;background:var(--border)}
-.group-grid{display:grid;gap:10px}
+.folder-icon svg{width:19px;height:19px}
+.folder-info{min-width:0;flex:1}
+.folder-name{font-size:14px;font-weight:650;overflow-wrap:anywhere}
+.folder-meta{font-size:12px;color:var(--muted-2)}
+.folder-card .item-actions{flex:none}
+.crumb{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.crumb-title{font-size:14px;font-weight:650;overflow-wrap:anywhere}
 
 /* skills */
 .cards-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));align-items:start}
@@ -539,9 +547,18 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
         <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Buscar">
       </div>
       <select id="filterSelect" aria-label="Filtrar" hidden></select>
+      <button class="btn" id="addFolderBtn" type="button" hidden>
+        <span data-icon="folderPlus"></span><span>Nova pasta</span>
+      </button>
       <button class="btn primary" id="addBtn" type="button">
         <span data-icon="plus"></span><span id="addLabel">Nova conta</span>
       </button>
+    </div>
+    <div class="crumb" id="crumbBar" hidden>
+      <button class="btn small ghost" id="crumbBack" type="button">
+        <span data-icon="back"></span><span>Pastas</span>
+      </button>
+      <span class="crumb-title" id="crumbTitle"></span>
     </div>
     <section id="list" class="list" aria-live="polite"></section>
   </main>
@@ -558,6 +575,26 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     <div class="dialog-foot">
       <button type="button" class="btn" data-close-dialog>Cancelar</button>
       <button type="submit" class="btn primary" id="entrySave">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ================= PASTA ================= -->
+<dialog id="folderDialog" aria-labelledby="folderDialogTitle">
+  <form id="folderForm" class="dialog-form" autocomplete="off">
+    <div class="dialog-head">
+      <h2 id="folderDialogTitle">Nova pasta</h2>
+      <button type="button" class="icon-btn" data-close-dialog aria-label="Fechar"></button>
+    </div>
+    <div class="dialog-body">
+      <div class="field">
+        <label for="f-name">Nome do projeto <span class="req">*</span></label>
+        <input id="f-name" required maxlength="80" placeholder="Ex.: Site da padaria, App de entregas">
+      </div>
+    </div>
+    <div class="dialog-foot">
+      <button type="button" class="btn" data-close-dialog>Cancelar</button>
+      <button type="submit" class="btn primary" id="folderSave">Criar pasta</button>
     </div>
   </form>
 </dialog>
@@ -633,7 +670,6 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
   let SUPABASE_KEY = 'sb_publishable_EyZOc3FKBdMPveId0E7Btg_BaooiRp8';
   const PBKDF2_ITER = 310000;
   const AUTO_LOCK_MS = 10 * 60 * 1000;
-  const DEFAULT_PROJECT_TYPES = ['Site institucional', 'Loja online', 'App / sistema', 'Automação', 'Bot', 'Integração', 'Outro'];
   const DEFAULT_SKILL_CATEGORIES = ['Sites & Deploy', 'Design', 'Código', 'APIs', 'Office', 'Arquitetura', 'Qoder', 'Mídia'];
 
   /* ============================================================
@@ -659,7 +695,10 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     alert: I('<path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5"/><path d="M12 18h.01"/>'),
     sparkles: I('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9Z"/>'),
     link: I('<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/>'),
-    check: I('<path d="m5 12 5 5L20 7"/>')
+    check: I('<path d="m5 12 5 5L20 7"/>'),
+    folder: I('<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2.5h7.5A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5Z"/>'),
+    folderPlus: I('<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2.5h7.5A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5Z"/><path d="M12 11v5M9.5 13.5h5"/>'),
+    back: I('<path d="m15 18-6-6 6-6"/>')
   };
 
   /* ============================================================
@@ -675,7 +714,8 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     data: null,
     tab: 'accounts',
     search: '',
-    filter: ''
+    filter: '',
+    apiFolder: ''
   };
   const session = { access: null, refresh: null, userId: null, expires: 0 };
   let syncTimer = null;
@@ -683,6 +723,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
   const revealed = new Set();
   let entryType = 'accounts';
   let entryId = null;
+  let folderEditId = null;
   let confirmCallback = null;
   let toastTimer = null;
   let activityTimer = null;
@@ -817,7 +858,20 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
 
   function normalize(data) {
     const arr = (x) => Array.isArray(x) ? x : [];
-    return { version: 1, accounts: arr(data.accounts), apis: arr(data.apis), skills: arr(data.skills) };
+    const folders = arr(data.folders).filter((f) => f && f.id && f.name);
+    // cofres antigos usavam "tipo de projeto": cada tipo vira uma pasta
+    const apis = arr(data.apis).map((a) => {
+      if (a.folderId !== undefined) return a;
+      const name = (a.projectType || '').trim();
+      if (!name) return Object.assign({}, a, { folderId: null });
+      let folder = folders.find((f) => f.name.toLowerCase() === name.toLowerCase());
+      if (!folder) {
+        folder = { id: uid(), name: name, createdAt: nowIso() };
+        folders.push(folder);
+      }
+      return Object.assign({}, a, { folderId: folder.id });
+    });
+    return { version: 1, accounts: arr(data.accounts), apis: apis, skills: arr(data.skills), folders: folders };
   }
 
   /* ============================================================
@@ -1032,6 +1086,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       accounts: [],
       apis: [],
       skills: seedSkills(),
+      folders: [],
       createdAt: nowIso()
     };
     const envelope = { v: 1, iter: PBKDF2_ITER, salt: b64(salt), iv: '', data: '' };
@@ -1117,6 +1172,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     state.tab = 'accounts';
     state.search = '';
     state.filter = '';
+    state.apiFolder = '';
     revealed.clear();
     $('#searchInput').value = '';
     render();
@@ -1172,34 +1228,49 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     });
 
     $('#addLabel').textContent = state.tab === 'accounts' ? 'Nova conta' : state.tab === 'apis' ? 'Nova API' : 'Nova skill';
+    $('#addFolderBtn').hidden = state.tab !== 'apis';
+
+    if (state.tab !== 'apis') state.apiFolder = '';
 
     const placeholders = {
       accounts: 'Buscar serviço, usuário ou observação',
-      apis: 'Buscar API, tipo de projeto ou URL',
+      apis: state.apiFolder ? 'Buscar API nesta pasta' : 'Buscar pasta',
       skills: 'Buscar skill, categoria ou descrição'
     };
     $('#searchInput').placeholder = placeholders[state.tab];
 
+    const crumb = $('#crumbBar');
+    if (state.tab === 'apis' && state.apiFolder) {
+      const folder = state.apiFolder === '__none' ? null : folderById(state.apiFolder);
+      if (state.apiFolder !== '__none' && !folder) {
+        state.apiFolder = '';
+        crumb.hidden = true;
+      } else {
+        crumb.hidden = false;
+        $('#crumbTitle').textContent = folder ? folder.name : 'Sem pasta';
+      }
+    } else {
+      crumb.hidden = true;
+    }
+
     const sel = $('#filterSelect');
-    if (state.tab === 'accounts') {
+    if (state.tab !== 'skills') {
       sel.hidden = true;
+      state.filter = '';
       return;
     }
     sel.hidden = false;
-    const values = state.tab === 'apis' ? uniqueProjectTypes() : uniqueSkillCategories();
-    const label = state.tab === 'apis' ? 'Todos os tipos de projeto' : 'Todas as categorias';
+    const values = uniqueSkillCategories();
     const previous = state.filter;
     sel.innerHTML = '';
-    sel.append(new Option(label, ''));
+    sel.append(new Option('Todas as categorias', ''));
     values.forEach((v) => sel.append(new Option(v, v)));
     if (values.indexOf(previous) === -1) state.filter = '';
     sel.value = state.filter;
   }
 
-  function uniqueProjectTypes() {
-    const set = new Set();
-    state.data.apis.forEach((a) => { const t = (a.projectType || '').trim(); if (t) set.add(t); });
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  function folderById(id) {
+    return (state.data.folders || []).find((f) => f.id === id) || null;
   }
 
   function uniqueSkillCategories() {
@@ -1251,7 +1322,11 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     } else if (state.tab === 'accounts') {
       list.append(emptyBlock('Nenhuma conta ainda', 'Guarde aqui o login e a senha dos seus programas, e-mails e serviços.', 'Adicionar primeira conta', () => openEntryDialog('accounts')));
     } else if (state.tab === 'apis') {
-      list.append(emptyBlock('Nenhuma API guardada', 'Cadastre chaves e endpoints separados por tipo de projeto: site, app, automação e mais.', 'Adicionar primeira API', () => openEntryDialog('apis')));
+      if (state.apiFolder) {
+        list.append(emptyBlock('Nenhuma API nesta pasta', 'Guarde aqui as chaves e endpoints deste projeto.', 'Adicionar API', () => openEntryDialog('apis')));
+      } else {
+        list.append(emptyBlock('Nenhuma pasta ainda', 'Crie uma pasta para cada projeto e guarde as APIs dentro dela.', 'Criar pasta', () => openFolderDialog()));
+      }
     } else {
       list.append(emptyBlock('Nenhuma skill ainda', 'Anote o nome da skill de IA e para que ela serve, para consultar na hora de usar o Qoder.', 'Adicionar primeira skill', () => openEntryDialog('skills')));
     }
@@ -1300,33 +1375,79 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
 
   /* ---------- APIs ---------- */
   function renderApis(list, q) {
-    const grouped = new Map();
-    state.data.apis.forEach((a) => {
-      if (!matches(a, q, ['name', 'projectType', 'key', 'baseUrl', 'environment', 'notes'])) return;
-      const type = (a.projectType || '').trim() || 'Sem tipo';
-      if (state.filter && type !== state.filter) return;
-      if (!grouped.has(type)) grouped.set(type, []);
-      grouped.get(type).push(a);
+    if (state.apiFolder) { renderFolderContents(list, q); return; }
+
+    const ql = q.trim().toLowerCase();
+    const folders = (state.data.folders || [])
+      .slice()
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'))
+      .filter((f) => !ql || (f.name || '').toLowerCase().includes(ql));
+    const orphans = state.data.apis.filter((a) => !a.folderId || !folderById(a.folderId));
+
+    if (!folders.length && !orphans.length) { emptyFor(list, q); return; }
+
+    const grid = el('div', { class: 'folder-grid' });
+    folders.forEach((folder) => {
+      const count = state.data.apis.filter((a) => a.folderId === folder.id).length;
+      grid.append(folderCard(folder, count, true));
+    });
+    if (orphans.length && (!ql || 'sem pasta'.includes(ql))) {
+      grid.append(folderCard({ id: '', name: 'Sem pasta' }, orphans.length, false));
+    }
+    list.append(grid);
+  }
+
+  function folderCard(folder, count, editable) {
+    const card = el('article', {
+      class: 'folder-card',
+      role: 'button',
+      tabindex: '0',
+      'aria-label': 'Abrir pasta ' + folder.name
     });
 
-    if (!grouped.size) { emptyFor(list, q); return; }
+    const icon = el('div', { class: 'folder-icon', 'aria-hidden': 'true' });
+    icon.innerHTML = editable ? icons.folder : icons.key;
+    const info = el('div', { class: 'folder-info' });
+    info.append(
+      el('div', { class: 'folder-name', text: folder.name }),
+      el('div', { class: 'folder-meta', text: count === 1 ? '1 API' : count + ' APIs' })
+    );
+    card.append(icon, info);
 
-    const types = Array.from(grouped.keys()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    types.forEach((type) => {
-      const block = el('div', { class: 'group-block' });
-      const head = el('div', { class: 'group-head' });
-      head.append(
-        el('h2', { text: type }),
-        el('span', { class: 'group-count', text: String(grouped.get(type).length) }),
-        el('span', { class: 'line' })
+    if (editable) {
+      const actions = el('div', { class: 'item-actions' });
+      actions.append(
+        iconBtn('edit', 'Renomear pasta', (e) => { e.stopPropagation(); openFolderDialog(folder); }),
+        iconBtn('trash', 'Excluir pasta', (e) => { e.stopPropagation(); askDeleteFolder(folder); }, 'danger')
       );
-      const grid = el('div', { class: 'group-grid' });
-      grouped.get(type)
-        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'))
-        .forEach((a) => grid.append(apiCard(a)));
-      block.append(head, grid);
-      list.append(block);
+      card.append(actions);
+    }
+
+    const open = () => {
+      state.apiFolder = folder.id || '__none';
+      state.search = '';
+      $('#searchInput').value = '';
+      render();
+    };
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
     });
+    return card;
+  }
+
+  function renderFolderContents(list, q) {
+    const isNone = state.apiFolder === '__none';
+    const folder = isNone ? null : folderById(state.apiFolder);
+    if (!isNone && !folder) { state.apiFolder = ''; renderApis(list, q); return; }
+
+    const items = state.data.apis
+      .filter((a) => isNone ? (!a.folderId || !folderById(a.folderId)) : a.folderId === folder.id)
+      .filter((a) => matches(a, q, ['name', 'key', 'baseUrl', 'environment', 'notes']))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+
+    if (!items.length) { emptyFor(list, q); return; }
+    items.forEach((a) => list.append(apiCard(a)));
   }
 
   function apiCard(a) {
@@ -1345,7 +1466,6 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     head.append(titleWrap, actionsEl('apis', a.id));
     body.append(head);
 
-    body.append(plainRow('Projeto', a.projectType || 'Sem tipo', null, false));
     if (a.key) body.append(secretRow('Chave', a.key, a.id, 'Chave copiada'));
     if (a.baseUrl) body.append(plainRow('URL base', a.baseUrl, 'Copiar URL', true));
     if (a.notes) body.append(el('p', { class: 'item-notes', text: a.notes }));
@@ -1457,7 +1577,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     if (type === 'apis') {
       return '' +
         '<div class="field"><label for="e-name">Nome da API <span class="req">*</span></label><input id="e-name" required maxlength="120" placeholder="Ex.: OpenAI, Mercado Pago, Supabase"></div>' +
-        '<div class="field"><label for="e-project">Tipo de projeto <span class="req">*</span></label><input id="e-project" required maxlength="80" list="e-project-list" placeholder="Ex.: Site institucional"><datalist id="e-project-list"></datalist></div>' +
+        '<div class="field"><label for="e-project">Pasta do projeto <span class="req">*</span></label><input id="e-project" required maxlength="80" list="e-project-list" placeholder="Ex.: Site da padaria"><datalist id="e-project-list"></datalist><p class="hint">Escolha uma pasta existente ou digite um nome novo — a pasta é criada ao salvar.</p></div>' +
         '<div class="field"><label for="e-secret">Chave / token <span class="req">*</span></label><div class="input-wrap"><input id="e-secret" type="password" required maxlength="2000" autocomplete="new-password" spellcheck="false"><button type="button" class="icon-btn" data-toggle-pass="e-secret" aria-label="Mostrar chave" title="Mostrar chave">' + icons.eye + '</button></div></div>' +
         '<div class="field"><label for="e-url">URL base (opcional)</label><input id="e-url" maxlength="500" spellcheck="false" placeholder="https://api.exemplo.com"></div>' +
         '<div class="field"><label for="e-env">Ambiente</label><select id="e-env"><option value="">Não informado</option><option>Produção</option><option>Homologação</option><option>Desenvolvimento</option></select></div>' +
@@ -1473,9 +1593,10 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
   function fillDatalists(type) {
     const list = $('#e-project-list');
     if (type === 'apis' && list) {
-      const values = new Set(DEFAULT_PROJECT_TYPES);
-      state.data.apis.forEach((a) => { if (a.projectType) values.add(a.projectType); });
-      Array.from(values).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach((v) => list.append(new Option(v)));
+      (state.data.folders || [])
+        .slice()
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'))
+        .forEach((f) => list.append(new Option(f.name)));
     }
     const cat = $('#e-category-list');
     if (type === 'skills' && cat) {
@@ -1502,7 +1623,8 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       $('#e-notes').value = item.notes || '';
     } else if (type === 'apis' && item) {
       $('#e-name').value = item.name || '';
-      $('#e-project').value = item.projectType || '';
+      const folder = folderById(item.folderId);
+      $('#e-project').value = folder ? folder.name : '';
       $('#e-secret').value = item.key || '';
       $('#e-url').value = item.baseUrl || '';
       $('#e-env').value = item.environment || '';
@@ -1512,6 +1634,11 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       $('#e-category').value = item.category || '';
       $('#e-purpose').value = item.purpose || '';
       $('#e-when').value = item.whenToUse || '';
+    }
+
+    if (type === 'apis' && !item && state.apiFolder && state.apiFolder !== '__none') {
+      const current = folderById(state.apiFolder);
+      if (current) $('#e-project').value = current.name;
     }
 
     fillDatalists(type);
@@ -1540,11 +1667,16 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       item = { id: id, name: name, username: username, password: password, url: trim('#e-url'), notes: trim('#e-notes'), updatedAt: nowIso() };
     } else if (type === 'apis') {
       const name = trim('#e-name');
-      const projectType = trim('#e-project');
+      const folderName = trim('#e-project');
       const key = raw('#e-secret');
-      if (!name || !projectType || !key) { toast('Preencha nome, tipo de projeto e chave.', 'err'); return; }
+      if (!name || !folderName || !key) { toast('Preencha nome, pasta do projeto e chave.', 'err'); return; }
+      let folder = (state.data.folders || []).find((f) => (f.name || '').toLowerCase() === folderName.toLowerCase());
+      if (!folder) {
+        folder = { id: uid(), name: folderName, createdAt: nowIso() };
+        state.data.folders.push(folder);
+      }
       collection = state.data.apis;
-      item = { id: id, name: name, projectType: projectType, key: key, baseUrl: trim('#e-url'), environment: trim('#e-env'), notes: trim('#e-notes'), updatedAt: nowIso() };
+      item = { id: id, name: name, folderId: folder.id, key: key, baseUrl: trim('#e-url'), environment: trim('#e-env'), notes: trim('#e-notes'), updatedAt: nowIso() };
     } else {
       const name = trim('#e-name');
       const purpose = trim('#e-purpose');
@@ -1566,6 +1698,61 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     } catch (err) {
       toast('Não foi possível salvar. Verifique o espaço do navegador.', 'err');
     }
+  }
+
+  /* ============================================================
+     Pastas de API
+     ============================================================ */
+  function openFolderDialog(folder) {
+    folderEditId = folder ? folder.id : null;
+    $('#folderDialogTitle').textContent = folder ? 'Renomear pasta' : 'Nova pasta';
+    $('#folderSave').textContent = folder ? 'Salvar' : 'Criar pasta';
+    $('#f-name').value = folder ? folder.name : '';
+    $('#folderDialog').showModal();
+    setTimeout(() => $('#f-name').focus(), 40);
+  }
+
+  async function saveFolder() {
+    const name = $('#f-name').value.trim();
+    if (!name) { toast('Digite o nome do projeto.', 'err'); return; }
+    const duplicate = state.data.folders.find((f) => f.id !== folderEditId && (f.name || '').toLowerCase() === name.toLowerCase());
+    if (duplicate) { toast('Já existe uma pasta com esse nome.', 'err'); return; }
+
+    if (folderEditId) {
+      const folder = folderById(folderEditId);
+      if (folder) folder.name = name;
+    } else {
+      state.data.folders.push({ id: uid(), name: name, createdAt: nowIso() });
+    }
+
+    $('#folderDialog').close();
+    try {
+      await writeVault();
+      render();
+      toast(folderEditId ? 'Pasta renomeada.' : 'Pasta criada.');
+    } catch (_) {
+      toast('Não foi possível salvar a pasta.', 'err');
+    }
+  }
+
+  function askDeleteFolder(folder) {
+    askConfirm(
+      'Excluir pasta?',
+      '"' + folder.name + '" será removida. As APIs dentro dela vão para "Sem pasta" e não são apagadas.',
+      'Excluir pasta',
+      async function () {
+        state.data.apis.forEach((a) => { if (a.folderId === folder.id) a.folderId = null; });
+        state.data.folders = state.data.folders.filter((f) => f.id !== folder.id);
+        if (state.apiFolder === folder.id) state.apiFolder = '';
+        try {
+          await writeVault();
+          render();
+          toast('Pasta excluída.');
+        } catch (_) {
+          toast('Não foi possível excluir a pasta.', 'err');
+        }
+      }
+    );
   }
 
   function findItem(type, id) {
@@ -1758,6 +1945,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
         state.tab = btn.dataset.tab;
         state.search = '';
         state.filter = '';
+        state.apiFolder = '';
         revealed.clear();
         $('#searchInput').value = '';
         render();
@@ -1781,6 +1969,19 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
 
     // adicionar
     $('#addBtn').addEventListener('click', () => openEntryDialog(state.tab));
+
+    // pastas de API
+    $('#addFolderBtn').addEventListener('click', () => openFolderDialog());
+    $('#folderForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      saveFolder();
+    });
+    $('#crumbBack').addEventListener('click', () => {
+      state.apiFolder = '';
+      state.search = '';
+      $('#searchInput').value = '';
+      render();
+    });
 
     // salvar item
     $('#entryForm').addEventListener('submit', async (e) => {
