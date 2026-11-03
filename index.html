@@ -625,11 +625,12 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
      ============================================================ */
   const STORAGE_KEY = 'kalltec_vault_v1';
   // Acesso fixo da empresa. O Supabase valida a senha; ela também deriva a chave do cofre.
-  const ACCESS_USER = 'kalltec';
-  const AUTH_EMAIL = 'kalltec@kalltec.com';
-  // Apenas a chave publishable fica no site. A secret key NUNCA deve entrar aqui.
-  const SUPABASE_URL = 'https://aqpdsamhoxkmyjhlswol.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_EyZOc3FKBdMPveId0E7Btg_BaooiRp8';
+  // No servidor Python estas variáveis são substituídas pelos valores do Render (/config).
+  let ACCESS_USER = 'kalltec';
+  let AUTH_EMAIL = 'kalltec@kalltec.com';
+  // Apenas a chave publishable fica no navegador. A secret key NUNCA deve entrar aqui.
+  let SUPABASE_URL = 'https://aqpdsamhoxkmyjhlswol.supabase.co';
+  let SUPABASE_KEY = 'sb_publishable_EyZOc3FKBdMPveId0E7Btg_BaooiRp8';
   const PBKDF2_ITER = 310000;
   const AUTO_LOCK_MS = 10 * 60 * 1000;
   const DEFAULT_PROJECT_TYPES = ['Site institucional', 'Loja online', 'App / sistema', 'Automação', 'Bot', 'Integração', 'Outro'];
@@ -1844,11 +1845,26 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     });
   }
 
+  async function loadServerConfig() {
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+    try {
+      const res = await fetch('/config', { cache: 'no-store' });
+      if (!res.ok) return;
+      const cfg = await res.json();
+      if (cfg.supabaseUrl) SUPABASE_URL = cfg.supabaseUrl;
+      if (cfg.supabaseKey) SUPABASE_KEY = cfg.supabaseKey;
+      if (cfg.authEmail) AUTH_EMAIL = cfg.authEmail;
+      if (cfg.accessUser) ACCESS_USER = cfg.accessUser;
+      const userInput = $('#loginUser');
+      if (userInput) userInput.value = ACCESS_USER;
+    } catch (_) {}
+  }
+
   /* ============================================================
      Início
      ============================================================ */
   bindEvents();
-  setupLockScreen();
+  loadServerConfig().then(setupLockScreen);
 })();
 </script>
 </body>

@@ -3,3 +3,8 @@ cofre-kalltec-*.json
 .env
 .DS_Store
 Thumbs.db
+
+# saída de build do Qoder Sites
+dist/
+*.qoder.site
+__pycache__/
