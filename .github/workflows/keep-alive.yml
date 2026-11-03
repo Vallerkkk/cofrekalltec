@@ -3,6 +3,8 @@ name: Keep alive
 on:
   schedule:
     - cron: "*/10 * * * *"
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
