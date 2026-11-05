@@ -278,6 +278,8 @@ input[type="file"]::file-selector-button:hover{border-color:var(--border-strong)
 .item-link svg{width:12px;height:12px;flex:none}
 .item-link:hover{color:var(--accent);text-decoration:none}
 .item-link.muted{color:var(--muted-2)}
+a.item-title{color:var(--text);text-decoration:none}
+a.item-title:hover{color:var(--accent-strong)}
 .item-actions{display:flex;gap:2px;margin-left:auto;flex:none}
 .kv{
   display:grid;
@@ -520,7 +522,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       <div class="brand-mark small" aria-hidden="true">K</div>
       <div class="brand-name">
         <strong>Cofre KallTec</strong>
-        <span>senhas, APIs, skills e documentos</span>
+        <span>senhas, APIs, skills, links e documentos</span>
       </div>
     </div>
 
@@ -528,6 +530,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       <button class="tab active" role="tab" data-tab="accounts" aria-selected="true">Contas <span class="count">0</span></button>
       <button class="tab" role="tab" data-tab="apis" aria-selected="false">APIs <span class="count">0</span></button>
       <button class="tab" role="tab" data-tab="skills" aria-selected="false">Skills IA <span class="count">0</span></button>
+      <button class="tab" role="tab" data-tab="links" aria-selected="false">Links <span class="count">0</span></button>
       <button class="tab" role="tab" data-tab="documents" aria-selected="false">Documentos <span class="count">0</span></button>
     </nav>
 
@@ -676,6 +679,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
   const AUTO_LOCK_MS = 10 * 60 * 1000;
   const DEFAULT_SKILL_CATEGORIES = ['Sites & Deploy', 'Design', 'Código', 'APIs', 'Office', 'Arquitetura', 'Qoder', 'Mídia'];
   const DEFAULT_DOC_CATEGORIES = ['Contratos', 'Notas fiscais', 'Documentos pessoais', 'Financeiro', 'Projetos', 'Outros'];
+  const DEFAULT_LINK_CATEGORIES = ['Ferramentas', 'Clientes', 'Documentação', 'Painéis', 'Outros'];
   const DOC_BUCKET = 'vault-docs';
   const DOC_MAX_BYTES = 20 * 1024 * 1024;
 
@@ -892,7 +896,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       }
       return Object.assign({}, a, { folderId: folder.id });
     });
-    return { version: 1, accounts: arr(data.accounts), apis: apis, skills: arr(data.skills), documents: arr(data.documents), folders: folders };
+    return { version: 1, accounts: arr(data.accounts), apis: apis, skills: arr(data.skills), links: arr(data.links), documents: arr(data.documents), folders: folders };
   }
 
   /* ============================================================
@@ -1175,6 +1179,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       accounts: [],
       apis: [],
       skills: seedSkills(),
+      links: [],
       documents: [],
       folders: [],
       createdAt: nowIso()
@@ -1317,7 +1322,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       btn.querySelector('.count').textContent = arr.length;
     });
 
-    const addLabels = { accounts: 'Nova conta', apis: 'Nova API', skills: 'Nova skill', documents: 'Novo documento' };
+    const addLabels = { accounts: 'Nova conta', apis: 'Nova API', skills: 'Nova skill', links: 'Novo link', documents: 'Novo documento' };
     $('#addLabel').textContent = addLabels[state.tab] || 'Adicionar';
     $('#addFolderBtn').hidden = state.tab !== 'apis';
 
@@ -1327,6 +1332,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       accounts: 'Buscar serviço, usuário ou observação',
       apis: state.apiFolder ? 'Buscar API nesta pasta' : 'Buscar pasta',
       skills: 'Buscar skill, categoria ou descrição',
+      links: 'Buscar link, categoria ou endereço',
       documents: 'Buscar documento, categoria ou arquivo'
     };
     $('#searchInput').placeholder = placeholders[state.tab];
@@ -1346,14 +1352,16 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     }
 
     const sel = $('#filterSelect');
-    const filterTab = state.tab === 'skills' || state.tab === 'documents';
+    const filterTab = state.tab === 'skills' || state.tab === 'links' || state.tab === 'documents';
     if (!filterTab) {
       sel.hidden = true;
       state.filter = '';
       return;
     }
     sel.hidden = false;
-    const values = state.tab === 'skills' ? uniqueSkillCategories() : uniqueDocCategories();
+    const values = state.tab === 'skills' ? uniqueSkillCategories()
+      : state.tab === 'links' ? uniqueLinkCategories()
+      : uniqueDocCategories();
     const previous = state.filter;
     sel.innerHTML = '';
     sel.append(new Option('Todas as categorias', ''));
@@ -1378,6 +1386,12 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
   }
 
+  function uniqueLinkCategories() {
+    const set = new Set();
+    (state.data.links || []).forEach((l) => { const c = (l.category || '').trim(); if (c) set.add(c); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }
+
   function matches(obj, q, keys) {
     if (!q) return true;
     return keys.some((k) => String(obj[k] || '').toLowerCase().includes(q));
@@ -1391,6 +1405,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
 
     if (state.tab === 'accounts') renderAccounts(list, q);
     else if (state.tab === 'apis') renderApis(list, q);
+    else if (state.tab === 'links') renderLinks(list, q);
     else if (state.tab === 'documents') renderDocuments(list, q);
     else renderSkills(list, q);
   }
@@ -1429,6 +1444,8 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       }
     } else if (state.tab === 'skills') {
       list.append(emptyBlock('Nenhuma skill ainda', 'Anote o nome da skill de IA e para que ela serve, para consultar na hora de usar o Qoder.', 'Adicionar primeira skill', () => openEntryDialog('skills')));
+    } else if (state.tab === 'links') {
+      list.append(emptyBlock('Nenhum link ainda', 'Guarde aqui os endereços que você usa sempre: painéis, documentos compartilhados, sites de clientes.', 'Adicionar primeiro link', () => openEntryDialog('links')));
     } else {
       list.append(emptyBlock('Nenhum documento ainda', 'Arquive contratos, notas fiscais e comprovantes. O arquivo é criptografado antes de sair do navegador.', 'Arquivar primeiro documento', () => openEntryDialog('documents')));
     }
@@ -1620,6 +1637,61 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
     return card;
   }
 
+  /* ---------- links ---------- */
+  function renderLinks(list, q) {
+    const items = (state.data.links || [])
+      .filter((l) => matches(l, q, ['name', 'url', 'category', 'notes']))
+      .filter((l) => !state.filter || (l.category || '') === state.filter)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+
+    if (!items.length) { emptyFor(list, q); return; }
+    items.forEach((l) => list.append(linkCard(l)));
+  }
+
+  function linkCard(l) {
+    const card = el('article', { class: 'item' });
+    const avatar = el('div', { class: 'avatar', 'aria-hidden': 'true' });
+    avatar.innerHTML = icons.link;
+    card.append(avatar);
+
+    const body = el('div', { class: 'item-body' });
+    const head = el('div', { class: 'item-head' });
+    const titleWrap = el('div', { class: 'item-title-wrap' });
+    const titleLine = el('div', { class: 'title-line' });
+    const url = safeUrl(l.url);
+    if (url) {
+      titleLine.append(el('a', {
+        class: 'item-title link-title',
+        href: url,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        title: url,
+        text: l.name || url
+      }));
+    } else {
+      titleLine.append(el('h3', { class: 'item-title', text: l.name || 'Sem nome' }));
+    }
+    if (l.category) titleLine.append(el('span', { class: 'chip', text: l.category }));
+    titleWrap.append(titleLine);
+    head.append(titleWrap, linkActions(l));
+    body.append(head);
+
+    if (url) body.append(el('span', { class: 'item-link muted', text: prettyUrl(url) }));
+    if (l.notes) body.append(el('p', { class: 'item-notes', text: l.notes }));
+    card.append(body);
+    return card;
+  }
+
+  function linkActions(l) {
+    const wrap = el('div', { class: 'item-actions' });
+    wrap.append(
+      iconBtn('copy', 'Copiar link', () => copyText(l.url, 'Link copiado')),
+      iconBtn('edit', 'Editar', () => openEntryDialog('links', l.id)),
+      iconBtn('trash', 'Excluir', () => askDelete('links', l.id), 'danger')
+    );
+    return wrap;
+  }
+
   /* ---------- documentos ---------- */
   function renderDocuments(list, q) {
     const items = (state.data.documents || [])
@@ -1739,6 +1811,13 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
         '<div class="field"><label for="e-expires">Validade (opcional)</label><input id="e-expires" type="date"></div>' +
         '<div class="field"><label for="e-notes">Observações (opcional)</label><textarea id="e-notes" rows="3" maxlength="1200" placeholder="Número do contrato, onde se aplica..."></textarea></div>';
     }
+    if (type === 'links') {
+      return '' +
+        '<div class="field"><label for="e-name">Nome do link <span class="req">*</span></label><input id="e-name" required maxlength="160" placeholder="Ex.: Painel do cliente, Documentação da API"></div>' +
+        '<div class="field"><label for="e-url">Endereço (URL) <span class="req">*</span></label><input id="e-url" required maxlength="2000" spellcheck="false" placeholder="https://..."></div>' +
+        '<div class="field"><label for="e-category">Categoria</label><input id="e-category" maxlength="60" list="e-link-category-list" placeholder="Ex.: Ferramentas"><datalist id="e-link-category-list"></datalist></div>' +
+        '<div class="field"><label for="e-notes">Observações (opcional)</label><textarea id="e-notes" rows="3" maxlength="1200" placeholder="Login usado, para que serve..."></textarea></div>';
+    }
     return '' +
       '<div class="field"><label for="e-name">Nome da skill <span class="req">*</span></label><input id="e-name" required maxlength="160" spellcheck="false" placeholder="Ex.: impeccable"></div>' +
       '<div class="field"><label for="e-category">Categoria</label><input id="e-category" maxlength="60" list="e-category-list" placeholder="Ex.: Design"><datalist id="e-category-list"></datalist></div>' +
@@ -1766,6 +1845,12 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       (state.data.documents || []).forEach((d) => { if (d.category) values.add(d.category); });
       Array.from(values).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach((v) => docCat.append(new Option(v)));
     }
+    const linkCat = $('#e-link-category-list');
+    if (type === 'links' && linkCat) {
+      const values = new Set(DEFAULT_LINK_CATEGORIES);
+      (state.data.links || []).forEach((l) => { if (l.category) values.add(l.category); });
+      Array.from(values).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach((v) => linkCat.append(new Option(v)));
+    }
   }
 
   function openEntryDialog(type, id) {
@@ -1778,6 +1863,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       accounts: ['Nova conta', 'Editar conta'],
       apis: ['Nova API', 'Editar API'],
       skills: ['Nova skill', 'Editar skill'],
+      links: ['Novo link', 'Editar link'],
       documents: ['Novo documento', 'Editar documento']
     };
     $('#entryDialogTitle').textContent = titles[type][item ? 1 : 0];
@@ -1802,6 +1888,11 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       $('#e-category').value = item.category || '';
       $('#e-purpose').value = item.purpose || '';
       $('#e-when').value = item.whenToUse || '';
+    } else if (type === 'links' && item) {
+      $('#e-name').value = item.name || '';
+      $('#e-url').value = item.url || '';
+      $('#e-category').value = item.category || '';
+      $('#e-notes').value = item.notes || '';
     } else if (type === 'documents' && item) {
       $('#e-name').value = item.name || '';
       $('#e-category').value = item.category || '';
@@ -1860,6 +1951,14 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       if (!name || !purpose) { toast('Preencha o nome e para que a skill serve.', 'err'); return; }
       collection = state.data.skills;
       item = { id: id, name: name, category: trim('#e-category'), purpose: purpose, whenToUse: trim('#e-when'), updatedAt: nowIso() };
+    } else if (type === 'links') {
+      const name = trim('#e-name');
+      const rawUrl = trim('#e-url');
+      const url = safeUrl(rawUrl);
+      if (!name) { toast('Digite o nome do link.', 'err'); return; }
+      if (!url || /\s/.test(rawUrl)) { toast('Digite um endereço válido, começando com http:// ou https://.', 'err'); return; }
+      collection = state.data.links;
+      item = { id: id, name: name, url: url, category: trim('#e-category'), notes: trim('#e-notes'), updatedAt: nowIso() };
     } else {
       const name = trim('#e-name');
       const fileInput = $('#e-file');
@@ -1915,7 +2014,8 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
       revealed.delete(id);
       $('#entryDialog').close();
       render();
-      toast(wasEdit ? 'Alterações salvas.' : (type === 'documents' ? 'Documento arquivado.' : 'Item adicionado.'));
+      const added = { documents: 'Documento arquivado.', links: 'Link adicionado.' };
+      toast(wasEdit ? 'Alterações salvas.' : (added[type] || 'Item adicionado.'));
     } catch (err) {
       toast('Não foi possível salvar. Verifique o espaço do navegador.', 'err');
     }
@@ -1985,7 +2085,7 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
   function askDelete(type, id) {
     const item = findItem(type, id);
     if (!item) return;
-    const labels = { accounts: 'conta', apis: 'API', skills: 'skill', documents: 'documento' };
+    const labels = { accounts: 'conta', apis: 'API', skills: 'skill', links: 'link', documents: 'documento' };
     const label = labels[type] || 'item';
     askConfirm(
       'Excluir ' + label + '?',
@@ -1998,7 +2098,8 @@ dialog::backdrop{background:rgba(3,6,10,.72);backdrop-filter:blur(5px)}
         try {
           await writeVault();
           render();
-          toast(type === 'documents' ? 'Documento excluído.' : 'Item excluído.');
+          const removed = { documents: 'Documento excluído.', links: 'Link excluído.' };
+          toast(removed[type] || 'Item excluído.');
         } catch (err) {
           toast('Não foi possível excluir.', 'err');
         }
